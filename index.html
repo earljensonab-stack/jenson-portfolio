@@ -10,8 +10,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 .sub { color: #475569; font-size: 11px; margin-bottom: 16px; }
 .btn { background: #1e3a5f; color: #93c5fd; border: 1px solid #1e4080; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; margin-bottom: 16px; margin-right: 8px; }
-.btn:hover { background: #1d4ed8; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:hover { background: #1d4ed8; } .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
 .card { background: #0f172a; border: 1px solid #1e2d4a; border-radius: 10px; padding: 12px; }
 .card .label { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
@@ -27,6 +26,7 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 .chg { font-size: 11px; margin-top: 2px; }
 .mv { font-size: 10px; color: #475569; margin-top: 4px; }
 .gl { font-size: 11px; font-weight: 700; margin-top: 1px; }
+.empty { opacity: 0.25; }
 .status { text-align: center; font-size: 10px; color: #334155; margin-top: 12px; }
 .err { color: #f87171; font-size: 10px; }
 .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid #1e2d4a; border-top-color: #60a5fa; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 4px; }
@@ -48,12 +48,82 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 <div class="section">AI Infrastructure</div><div id="g-infra"></div>
 <div class="section">Memory / HBM</div><div id="g-mem"></div>
 <div class="section">YieldMax Income</div><div id="g-inc"></div>
-<div class="section">Watch / Recovery</div><div id="g-watch"></div>
+<div class="section">Watchlist</div><div id="g-watch"></div>
 <div class="status" id="status">Tap Refresh to load prices</div>
 <div id="debugOut"></div>
-<div class="note"><strong style="color:#64748b">Tip:</strong> If prices show "failed", tap Refresh — the proxy occasionally needs a retry. Works on phone, tablet and desktop.</div>
+<div class="note"><strong style="color:#64748b">To add a ticker:</strong> Replace any blank entry (ticker: '') with the new symbol. Tell Claude the change and he will update the file. If prices show "failed", tap Refresh.</div>
 
 <script>
+// ════════════════════════════════════════════════════════════
+// PORTFOLIO DATA — EDIT THIS SECTION TO ADD/CHANGE POSITIONS
+// ════════════════════════════════════════════════════════════
+//
+// FORMAT: { t, sh, book, name, type }
+//   t:    ticker symbol (use '' for a blank/spare slot)
+//   sh:   number of shares (0 = watch only, no calculations)
+//   book: book cost in CAD (0 if watch only)
+//   name: display name
+//   type: 'USD' = multiply by FX rate
+//         'CAD' = already in CAD, no conversion
+//         'CDR' = special Micron CDR calculation
+//
+// SECTIONS: infra, mem, inc, watch
+// Add more blank slots by copying the blank entry lines
+// ════════════════════════════════════════════════════════════
+
+const SECTIONS = {
+
+  infra: [
+    { t:'STRL',   sh:89,   book:61814,  name:'Sterling Infrastructure',  type:'USD' },
+    { t:'CLS.TO', sh:102,  book:37285,  name:'Celestica (TSX)',           type:'CAD' },
+    { t:'VRT',    sh:125,  book:32924,  name:'Vertiv Holdings',           type:'USD' },
+    { t:'DELL',   sh:32,   book:9553,   name:'Dell Technologies CDR',     type:'USD' },
+    { t:'LRCX',   sh:55,   book:16089,  name:'Lam Research',              type:'USD' },
+    { t:'COHR',   sh:11,   book:4347,   name:'Coherent Corp',             type:'USD' },
+    { t:'APH',    sh:25,   book:4897,   name:'Amphenol Corp',             type:'USD' },
+    // ── spare slots ──────────────────────────────────────────
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+  mem: [
+    { t:'MU',     sh:890,  book:33454,  name:'Micron CDR (MU.TO proxy)', type:'CDR' },
+    { t:'DRAM',   sh:1189, book:105342, name:'Roundhill Memory ETF',      type:'USD' },
+    // ── spare slots ──────────────────────────────────────────
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+  inc: [
+    { t:'NVDY',   sh:3120, book:43680,  name:'YieldMax NVDA ETF',         type:'USD' },
+    { t:'FBY',    sh:1530, book:30146,  name:'YieldMax META ETF',         type:'USD' },
+    { t:'NFLY',   sh:230,  book:5113,   name:'YieldMax NFLX ETF',         type:'USD' },
+    // ── spare slots ──────────────────────────────────────────
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+  watch: [
+    { t:'NVDA',   sh:0,    book:0,      name:'Nvidia (NVDY signal)',       type:'USD' },
+    { t:'PRIM',   sh:151,  book:42318,  name:'Primoris Services',         type:'USD' },
+    { t:'V',      sh:128,  book:70965,  name:'Visa Inc',                  type:'USD' },
+    { t:'RITM',   sh:0,    book:0,      name:'Rithm Capital (watchlist)', type:'USD' },
+    { t:'GRID',   sh:0,    book:0,      name:'GRID ETF (watchlist)',       type:'USD' },
+    { t:'XNDU',   sh:0,    book:0,      name:'Xanadu Quantum (watchlist)',type:'USD' },
+    // ── spare slots ──────────────────────────────────────────
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+};
+
+// ════════════════════════════════════════════════════════════
+// ENGINE — DO NOT EDIT BELOW THIS LINE
+// ════════════════════════════════════════════════════════════
+
 let FX = 1.3988;
 const LOGS = [];
 const lg = m => { LOGS.push(m); };
@@ -63,42 +133,23 @@ const toggleDebug = () => {
   el.textContent = LOGS.join('\n');
 };
 
-const POS = [
-  ['STRL',   89,   61814,  'Sterling Infrastructure', 'infra', 'USD'],
-  ['CLS.TO', 102,  37285,  'Celestica (TSX)',          'infra', 'CAD'],
-  ['VRT',    125,  32924,  'Vertiv Holdings',           'infra', 'USD'],
-  ['DELL',   32,   9553,   'Dell Technologies CDR',    'infra', 'USD'],
-  ['LRCX',   55,   16089,  'Lam Research',             'infra', 'USD'],
-  ['COHR',   11,   4347,   'Coherent Corp',            'infra', 'USD'],
-  ['APH',    25,   4897,   'Amphenol Corp',            'infra', 'USD'],
-  ['MU',     890,  33454,  'Micron CDR (proxy)',        'mem',   'CDR'],
-  ['DRAM',   1189, 105342, 'Roundhill Memory ETF',     'mem',   'USD'],
-  ['NVDY',   3120, 43680,  'YieldMax NVDA ETF',        'inc',   'USD'],
-  ['FBY',    1530, 30146,  'YieldMax META ETF',        'inc',   'USD'],
-  ['NFLY',   230,  5113,   'YieldMax NFLX ETF',        'inc',   'USD'],
-  ['NVDA',   0,    0,      'Nvidia (signal only)',     'watch', 'USD'],
-  ['PRIM',   151,  42318,  'Primoris Services',        'watch', 'USD'],
-  ['V',      128,  70965,  'Visa Inc',                 'watch', 'USD'],
+const CDR_RATIO = 37.59 / 775;
+
+const PROXIES = [
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u.replace('query1','query2'))}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`,
 ];
 
-const CDR = 37.59 / 775;
-
 async function getQ(ticker) {
-  const yBase = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-  const yBase2 = `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-  const proxies = [
-    `https://api.allorigins.win/get?url=${encodeURIComponent(yBase)}`,
-    `https://corsproxy.io/?${encodeURIComponent(yBase)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(yBase2)}`,
-    `https://thingproxy.freeboard.io/fetch/${yBase}`,
-  ];
-
-  for (let i = 0; i < proxies.length; i++) {
+  const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+  for (let i = 0; i < PROXIES.length; i++) {
     try {
       lg(`[${ticker}] proxy ${i+1}`);
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), 9000);
-      const r = await fetch(proxies[i], { signal: ctrl.signal });
+      const r = await fetch(PROXIES[i](base), { signal: ctrl.signal });
       clearTimeout(tid);
       if (!r.ok) { lg(`[${ticker}] HTTP ${r.status}`); continue; }
       const txt = await r.text();
@@ -106,96 +157,152 @@ async function getQ(ticker) {
       try {
         const outer = JSON.parse(txt);
         parsed = outer.contents ? JSON.parse(outer.contents) : outer;
-      } catch { lg(`[${ticker}] parse error`); continue; }
+      } catch { lg(`[${ticker}] parse err`); continue; }
       const meta = parsed?.chart?.result?.[0]?.meta;
       if (!meta?.regularMarketPrice) { lg(`[${ticker}] no price`); continue; }
       const p = meta.regularMarketPrice;
       const prev = meta.chartPreviousClose || p;
-      lg(`[${ticker}] OK $${p}`);
+      lg(`[${ticker}] $${p}`);
       return { price: p, prev, change: p - prev, pct: ((p - prev) / prev) * 100 };
-    } catch(e) { lg(`[${ticker}] err: ${e.message}`); }
+    } catch(e) { lg(`[${ticker}] ${e.message}`); }
   }
-  lg(`[${ticker}] ALL FAILED`);
   return null;
 }
 
-function mv(pos, q) {
-  const [t, sh, book,,,type] = pos;
-  if (!q || sh === 0) return { mvCAD: 0, glCAD: 0, dayCAD: 0 };
+function calcMV(pos, q) {
+  if (!q || pos.sh === 0) return { mvCAD: 0, glCAD: 0, dayCAD: 0 };
   let mvCAD = 0, dayCAD = 0;
-  if (type === 'CDR') { mvCAD = sh * q.price * CDR * FX; dayCAD = sh * q.change * CDR * FX; }
-  else if (type === 'CAD') { mvCAD = sh * q.price; dayCAD = sh * q.change; }
-  else { mvCAD = sh * q.price * FX; dayCAD = sh * q.change * FX; }
-  return { mvCAD, glCAD: mvCAD - book, dayCAD };
+  if (pos.type === 'CDR') {
+    mvCAD = pos.sh * q.price * CDR_RATIO * FX;
+    dayCAD = pos.sh * q.change * CDR_RATIO * FX;
+  } else if (pos.type === 'CAD') {
+    mvCAD = pos.sh * q.price;
+    dayCAD = pos.sh * q.change;
+  } else {
+    mvCAD = pos.sh * q.price * FX;
+    dayCAD = pos.sh * q.change * FX;
+  }
+  return { mvCAD, glCAD: mvCAD - pos.book, dayCAD };
 }
 
-function row(pos, q) {
-  const [ticker, sh, book, name,,type] = pos;
-  const { mvCAD, glCAD } = mv(pos, q);
-  const glPct = book > 0 ? (glCAD / book) * 100 : 0;
+function makeRow(pos, q) {
+  // Empty slot
+  if (!pos.t) {
+    return `<div class="row empty"><div><div class="ticker" style="color:#1e2d4a">— empty slot —</div><div class="rname">Replace t:'' with a ticker symbol</div></div><div class="right"><div class="price neu">—</div></div></div>`;
+  }
+
+  const { mvCAD, glCAD, dayCAD } = calcMV(pos, q);
+  const glPct = pos.book > 0 ? (glCAD / pos.book) * 100 : 0;
   let pStr = '<span class="spin"></span>';
   let cStr = '';
   let pCls = 'neu';
+
   if (q === false) {
     pStr = '<span class="err">failed — tap Refresh</span>';
   } else if (q) {
     pCls = q.pct >= 0 ? 'pos' : 'neg';
-    if (type === 'CDR') pStr = `$${(q.price * CDR * FX).toFixed(2)} CAD <span style="color:#475569;font-size:9px">MU $${q.price.toFixed(0)}</span>`;
-    else if (type === 'CAD') pStr = `$${q.price.toFixed(2)} CAD`;
-    else pStr = `$${q.price.toFixed(2)} USD`;
+    if (pos.type === 'CDR') {
+      const cdrCAD = (q.price * CDR_RATIO * FX).toFixed(2);
+      pStr = `$${cdrCAD} CAD <span style="color:#475569;font-size:9px">MU $${q.price.toFixed(0)}</span>`;
+    } else if (pos.type === 'CAD') {
+      pStr = `$${q.price.toFixed(2)} CAD`;
+    } else {
+      pStr = `$${q.price.toFixed(2)} USD`;
+    }
     cStr = `<span class="${pCls}">${q.pct >= 0 ? '+' : ''}${q.pct.toFixed(2)}%</span>`;
   }
-  const shStr = sh > 0 ? `${sh.toLocaleString()} sh · book $${Math.round(book).toLocaleString()}` : 'watch only';
+
+  const shStr = pos.sh > 0
+    ? `${pos.sh.toLocaleString()} sh · book $${Math.round(pos.book).toLocaleString()} CAD`
+    : 'watch only';
   const mvStr = mvCAD > 0 ? `MV $${Math.round(mvCAD).toLocaleString()} CAD` : '';
-  const glStr = sh > 0 && q && q !== false
+  const glStr = pos.sh > 0 && q && q !== false
     ? `<span class="${glCAD >= 0 ? 'pos' : 'neg'}">${glCAD >= 0 ? '+' : '-'}$${Math.abs(Math.round(glCAD)).toLocaleString()} (${glPct >= 0 ? '+' : ''}${glPct.toFixed(0)}%)</span>`
     : '';
-  return `<div class="row"><div><div class="ticker">${ticker}</div><div class="rname">${name}</div><div class="rmeta">${shStr}</div></div><div class="right"><div class="price ${pCls}">${pStr}</div><div class="chg">${cStr}</div><div class="mv">${mvStr}</div><div class="gl">${glStr}</div></div></div>`;
+
+  return `<div class="row">
+    <div>
+      <div class="ticker">${pos.t}</div>
+      <div class="rname">${pos.name}</div>
+      <div class="rmeta">${shStr}</div>
+    </div>
+    <div class="right">
+      <div class="price ${pCls}">${pStr}</div>
+      <div class="chg">${cStr}</div>
+      <div class="mv">${mvStr}</div>
+      <div class="gl">${glStr}</div>
+    </div>
+  </div>`;
 }
 
 async function fetchAll() {
   LOGS.length = 0;
   const btn = document.getElementById('btn');
-  btn.disabled = true; btn.textContent = '⟳ Loading...';
+  btn.disabled = true;
+  btn.textContent = '⟳ Loading...';
   document.getElementById('status').innerHTML = '<span class="spin"></span>Fetching prices...';
-  ['infra','mem','inc','watch'].forEach(s => {
-    document.getElementById('g-'+s).innerHTML = POS.filter(p => p[4] === s).map(p => row(p, null)).join('');
-  });
 
+  // Show loading state
+  for (const [sec, positions] of Object.entries(SECTIONS)) {
+    document.getElementById('g-'+sec).innerHTML = positions.map(p => makeRow(p, null)).join('');
+  }
+
+  // FX rate
   const fxQ = await getQ('USDCAD=X');
   if (fxQ) FX = fxQ.price;
 
-  const results = await Promise.all(POS.map(async p => ({ pos: p, q: (await getQ(p[0])) ?? false })));
+  // Collect all unique non-empty tickers
+  const allPos = Object.values(SECTIONS).flat().filter(p => p.t !== '');
+  const unique = [...new Set(allPos.map(p => p.t))];
 
+  // Fetch all in parallel
+  const quoteMap = {};
+  await Promise.all(unique.map(async ticker => {
+    quoteMap[ticker] = (await getQ(ticker)) ?? false;
+  }));
+
+  // Calculate totals and render
   let tMV = 0, tBook = 0, tDay = 0;
-  const secs = { infra:[], mem:[], inc:[], watch:[] };
-  for (const { pos, q } of results) {
-    secs[pos[4]].push(row(pos, q));
-    if (pos[1] > 0 && q && q !== false) {
-      const { mvCAD, dayCAD } = mv(pos, q);
-      tMV += mvCAD; tBook += pos[2]; tDay += dayCAD;
-    }
-  }
-  for (const [s, rows] of Object.entries(secs)) document.getElementById('g-'+s).innerHTML = rows.join('');
 
+  for (const [sec, positions] of Object.entries(SECTIONS)) {
+    const html = positions.map(pos => {
+      const q = pos.t ? quoteMap[pos.t] : null;
+      const row = makeRow(pos, q);
+      if (pos.t && pos.sh > 0 && q && q !== false) {
+        const { mvCAD, dayCAD } = calcMV(pos, q);
+        tMV += mvCAD;
+        tBook += pos.book;
+        tDay += dayCAD;
+      }
+      return row;
+    });
+    document.getElementById('g-'+sec).innerHTML = html.join('');
+  }
+
+  // Summary cards
   const gl = tMV - tBook;
-  const glP = tBook > 0 ? (gl/tBook)*100 : 0;
+  const glP = tBook > 0 ? (gl / tBook) * 100 : 0;
+
   document.getElementById('sMV').textContent = '$' + Math.round(tMV).toLocaleString();
   document.getElementById('sMV').className = 'val pos';
+
   const ge = document.getElementById('sGL');
   ge.textContent = (gl >= 0 ? '+$' : '-$') + Math.abs(Math.round(gl)).toLocaleString();
   ge.className = `val ${gl >= 0 ? 'pos' : 'neg'}`;
   document.getElementById('sGLp').textContent = `${glP >= 0 ? '+' : ''}${glP.toFixed(1)}% vs book`;
+
   const de = document.getElementById('sDay');
   de.textContent = (tDay >= 0 ? '+$' : '-$') + Math.abs(Math.round(tDay)).toLocaleString();
   de.className = `val ${tDay >= 0 ? 'pos' : 'neg'}`;
 
-  const failed = results.filter(r => r.q === false).length;
+  const failed = Object.values(quoteMap).filter(q => q === false).length;
   const now = new Date();
   document.getElementById('status').textContent =
-    `Updated ${now.toLocaleTimeString()} · FX ${FX.toFixed(4)} · ${failed > 0 ? failed + ' failed — try Refresh' : 'All prices loaded ✓'}`;
+    `Updated ${now.toLocaleTimeString()} · FX ${FX.toFixed(4)} · ${failed > 0 ? failed + ' ticker(s) failed — try Refresh' : 'All prices loaded ✓'}`;
+
   document.getElementById('debugOut').textContent = LOGS.join('\n');
-  btn.disabled = false; btn.textContent = '↻ Refresh';
+  btn.disabled = false;
+  btn.textContent = '↻ Refresh';
 }
 
 fetchAll();
