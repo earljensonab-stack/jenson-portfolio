@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Jenson Portfolio Feed</title>
+<style>
+body { font-family: monospace; background: #0a0e1a; color: #e2e8f0; padding: 20px; }
+h2 { color: #60a5fa; }
+#output { white-space: pre; font-size: 13px; line-height: 1.8; }
+.pos { color: #34d399; }
+.neg { color: #f87171; }
+.neu { color: #94a3b8; }
+button { background: #1e40af; color: #93c5fd; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<h2>Jenson Portfolio — Live Price Feed</h2>
+<button onclick="fetchAll()">↻ Refresh</button>
+<div id="output">Loading prices...</div>
+<div id="json" style="display:none"></div>
+
+<script>
+const FX_CELL = 'USDCAD';
+
+// Your complete position list
+// [ticker, shares, bookCAD, name, type]
+// type: USD=multiply by FX, CAD=no FX, CDR=special MU formula
+const POSITIONS = [
+  ['STRL',  89,   61814,  'Sterling Infrastructure',  'USD'],
+  ['CLS.TO',102,  37285,  'Celestica (TSX)',           'CAD'],
+  ['VRT',   125,  32924,  'Vertiv Holdings',           'USD'],
+  ['MU',    890,  33454,  'Micron CDR (proxy)',        'CDR'],
+  ['DRAM',  1189, 105342, 'Roundhill Memory ETF',      'USD'],
+  ['LRCX',  55,   16089,  'Lam Research',              'USD'],
+  ['COHR',  11,   4347,   'Coherent Corp',             'USD'],
+  ['DELL',  32,   9553,   'Dell Technologies CDR',     'USD'],
+  ['APH',   25,   4897,   'Amphenol Corp',             'USD'],
+  ['PRIM',  151,  42318,  'Primoris Services',         'USD'],
+  ['V',     128,  70965,  'Visa Inc',                  'USD'],
+  ['NVDA',  0,    0,      'Nvidia (signal)',            'USD'],
+  ['NVDY',  3120, 43680,  'YieldMax NVDA',             'USD'],
+  ['FBY',   1530, 30146,  'YieldMax META',             'USD'],
+  ['NFLY',  230,  5113,   'YieldMax NFLX',             'USD'],
+];
+
+const MU_CDR_RATIO = 37.59 / 775; // entry ratio for CDR calculation
+
+async function fetchQuote(ticker) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+  const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  try {
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(7000) });
+    const outer = await r.json();
+    const inner = JSON.parse(outer.contents);
+    const meta = inner?.chart?.result?.[0]?.meta;
+    if (!meta?.regularMarketPrice) return null;
+    const price = meta.regularMarketPrice;
+    const prev = meta.chartPreviousClose || price;
+    return {
+      price,
+      change: price - prev,
+      pct: ((price - prev) / prev) * 100,
+      currency: meta.currency || 'USD'
+    };
+  } catch { return null; }
+}
+
+async function fetchAll() {
+  document.getElementById('output').textContent = 'Fetching live prices...';
+
+  // Fetch FX rate first
+  const fxQuote = await fetchQuote('USDCAD=X');
+  const fx = fxQuote ? fxQuote.price : 1.3988;
+
+  // Fetch all tickers in parallel
+  const results = await Promise.all(
+    POSITIONS.map(async ([ticker, shares, book, name, type]) => {
+      const q = await fetchQuote(ticker);
+      return { ticker, shares, book, name, type, q };
+    })
+  );
+
+  const now = new Date();
+  const ts = now.toLocaleString('en-CA', { timeZone: 'America/Edmonton' });
+
+  let text = `JENSON PORTFOLIO — LIVE PRICES\n`;
+  text += `Updated: ${ts} MDT\n`;
+  text += `USD/CAD: ${fx.toFixed(4)}\n`;
+  text += `${'─'.repeat(72)}\n`;
+  text += `${'TICKER'.<8} ${'PRICE':>10} ${'CHG%':>7} ${'MV CAD':>12} ${'G/L CAD':>12} ${'G/L%':>7}\n`;
+  text += `${'─'.repeat(72)}\n`;
+
+  // Pad helper
+  const pad = (s, n, right=false) => right ? String(s).padStart(n) : String(s).padEnd(n);
+
+  let totalMV = 0;
+  let totalBook = 0;
+  let totalDay = 0;
+
+  const jsonData = { updated: ts, fx, positions: [] };
+
+  for (const { ticker, shares, book, name, type, q } of results) {
+    let priceStr = '—';
+    let pctStr = '—';
+    let mvStr = '—';
+    let glStr = '—';
+    let glPctStr = '—';
+    let mvCAD = 0;
+    let dayCAD = 0;
+
+    if (q) {
+      priceStr = q.price.toFixed(2);
+      pctStr = (q.pct >= 0 ? '+' : '') + q.pct.toFixed(2) + '%';
+
+      if (shares > 0) {
+        if (type === 'CDR') {
+          const cdrPrice = q.price * MU_CDR_RATIO; // in USD
+          // CDR trades in CAD — convert
+          mvCAD = shares * cdrPrice * fx;
+          dayCAD = shares * (q.change * MU_CDR_RATIO) * fx;
+          priceStr = 'CDR~$' + (cdrPrice * fx).toFixed(2);
+        } else if (type === 'CAD') {
+          mvCAD = shares * q.price;
+          dayCAD = shares * q.change;
+        } else {
+          mvCAD = shares * q.price * fx;
+          dayCAD = shares * q.change * fx;
+        }
+
+        const gl = mvCAD - book;
+        const glPct = book > 0 ? (gl / book) * 100 : 0;
+        mvStr = '$' + Math.round(mvCAD).toLocaleString();
+        glStr = (gl >= 0 ? '+$' : '-$') + Math.abs(Math.round(gl)).toLocaleString();
+        glPctStr = (glPct >= 0 ? '+' : '') + glPct.toFixed(1) + '%';
+
+        totalMV += mvCAD;
+        totalBook += book;
+        totalDay += dayCAD;
+      }
+    }
+
+    text += `${pad(ticker, 8)} ${pad(priceStr, 10, true)} ${pad(pctStr, 7, true)} ${pad(mvStr, 12, true)} ${pad(glStr, 12, true)} ${pad(glPctStr, 7, true)}  ${name}\n`;
+
+    jsonData.positions.push({
+      ticker, name, shares, book,
+      price: q ? q.price : null,
+      pct: q ? q.pct : null,
+      mvCAD: Math.round(mvCAD),
+      glCAD: Math.round(mvCAD - book)
+    });
+  }
+
+  const totalGL = totalMV - totalBook;
+  const totalGLpct = totalBook > 0 ? (totalGL / totalBook) * 100 : 0;
+
+  text += `${'─'.repeat(72)}\n`;
+  text += `${'TOTAL'.padEnd(8)} ${' '.repeat(10)} ${' '.repeat(7)} ${pad('$'+Math.round(totalMV).toLocaleString(), 12, true)} ${pad((totalGL>=0?'+$':'-$')+Math.abs(Math.round(totalGL)).toLocaleString(), 12, true)} ${pad((totalGLpct>=0?'+':'')+totalGLpct.toFixed(1)+'%', 7, true)}\n`;
+  text += `DAY CHANGE: ${totalDay >= 0 ? '+' : ''}$${Math.abs(Math.round(totalDay)).toLocaleString()} CAD\n`;
+
+  jsonData.totalMV = Math.round(totalMV);
+  jsonData.totalGL = Math.round(totalGL);
+  jsonData.dayChange = Math.round(totalDay);
+
+  document.getElementById('output').textContent = text;
+  document.getElementById('json').textContent = JSON.stringify(jsonData, null, 2);
+}
+
+fetchAll();
+setInterval(fetchAll, 5 * 60 * 1000); // refresh every 5 minutes
+</script>
+</body>
+</html>
