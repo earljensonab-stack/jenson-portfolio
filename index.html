@@ -26,7 +26,7 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 .chg { font-size: 11px; margin-top: 2px; }
 .mv { font-size: 10px; color: #475569; margin-top: 4px; }
 .gl { font-size: 11px; font-weight: 700; margin-top: 1px; }
-.empty { opacity: 0.25; }
+.empty { opacity: 0.2; }
 .status { text-align: center; font-size: 10px; color: #334155; margin-top: 12px; }
 .err { color: #f87171; font-size: 10px; }
 .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid #1e2d4a; border-top-color: #60a5fa; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 4px; }
@@ -37,7 +37,7 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 </head>
 <body>
 <h1>Jenson Portfolio</h1>
-<div class="sub">Live prices · CAD base · 15-min delayed</div>
+<div class="sub">Live prices · CAD base · 15-min delayed · Updated automatically every 5 min</div>
 <button class="btn" onclick="fetchAll()" id="btn">↻ Refresh</button>
 <button class="btn" onclick="toggleDebug()" style="background:#1a1a2e;color:#64748b;border-color:#1e2d4a;font-size:11px;">Debug</button>
 <div class="summary">
@@ -45,77 +45,105 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
   <div class="card"><div class="label">Total G/L</div><div class="val neu" id="sGL">—</div><div style="font-size:10px;color:#475569;margin-top:2px" id="sGLp"></div></div>
   <div class="card"><div class="label">Day Change</div><div class="val neu" id="sDay">—</div></div>
 </div>
-<div class="section">AI Infrastructure</div><div id="g-infra"></div>
-<div class="section">Memory / HBM</div><div id="g-mem"></div>
-<div class="section">YieldMax Income</div><div id="g-inc"></div>
-<div class="section">Watchlist</div><div id="g-watch"></div>
+
+<div class="section">⚡ AI Infrastructure — Core Holdings</div><div id="g-infra"></div>
+<div class="section">💾 Memory / HBM Thesis</div><div id="g-mem"></div>
+<div class="section">💰 YieldMax Income</div><div id="g-inc"></div>
+<div class="section">🛢 Energy — Watch</div><div id="g-energy"></div>
+<div class="section">👁 Watchlist — New Names</div><div id="g-watch"></div>
+<div class="section">📊 Positions — Other</div><div id="g-other"></div>
+
 <div class="status" id="status">Tap Refresh to load prices</div>
 <div id="debugOut"></div>
-<div class="note"><strong style="color:#64748b">To add a ticker:</strong> Replace any blank entry (ticker: '') with the new symbol. Tell Claude the change and he will update the file. If prices show "failed", tap Refresh.</div>
+<div class="note"><strong style="color:#64748b">To add a ticker:</strong> Replace any blank entry (t:'') with the new symbol. Tell Claude and he updates the file. If prices fail, tap Refresh — proxy needs a retry occasionally.</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
-// PORTFOLIO DATA — EDIT THIS SECTION TO ADD/CHANGE POSITIONS
+// PORTFOLIO DATA — EDIT THIS SECTION ONLY
 // ════════════════════════════════════════════════════════════
-//
 // FORMAT: { t, sh, book, name, type }
-//   t:    ticker symbol (use '' for a blank/spare slot)
-//   sh:   number of shares (0 = watch only, no calculations)
+//   t:    ticker ('' = blank spare slot)
+//   sh:   shares (0 = watch only)
 //   book: book cost in CAD (0 if watch only)
-//   name: display name
-//   type: 'USD' = multiply by FX rate
-//         'CAD' = already in CAD, no conversion
-//         'CDR' = special Micron CDR calculation
-//
-// SECTIONS: infra, mem, inc, watch
-// Add more blank slots by copying the blank entry lines
+//   type: 'USD' | 'CAD' | 'MU_CDR' (special Micron CDR calc)
 // ════════════════════════════════════════════════════════════
 
 const SECTIONS = {
 
   infra: [
-    { t:'STRL',   sh:89,   book:61814,  name:'Sterling Infrastructure',  type:'USD' },
-    { t:'CLS.TO', sh:102,  book:37285,  name:'Celestica (TSX)',           type:'CAD' },
-    { t:'VRT',    sh:125,  book:32924,  name:'Vertiv Holdings',           type:'USD' },
-    { t:'DELL',   sh:32,   book:9553,   name:'Dell Technologies CDR',     type:'USD' },
-    { t:'LRCX',   sh:55,   book:16089,  name:'Lam Research',              type:'USD' },
-    { t:'COHR',   sh:11,   book:4347,   name:'Coherent Corp',             type:'USD' },
-    { t:'APH',    sh:25,   book:4897,   name:'Amphenol Corp',             type:'USD' },
-    // ── spare slots ──────────────────────────────────────────
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',  type:'USD' },
+    { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX)',           type:'CAD' },
+    { t:'VRT',     sh:125,  book:32924,  name:'Vertiv Holdings',           type:'USD' },
+    { t:'DELL',    sh:32,   book:9553,   name:'Dell Technologies CDR',     type:'USD' },
+    { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',              type:'USD' },
+    { t:'COHR',    sh:11,   book:4347,   name:'Coherent Corp',             type:'USD' },
+    { t:'APH',     sh:25,   book:4897,   name:'Amphenol Corp (RESP)',      type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
   ],
 
   mem: [
-    { t:'MU',     sh:890,  book:33454,  name:'Micron CDR (MU.TO proxy)', type:'CDR' },
-    { t:'DRAM',   sh:1189, book:105342, name:'Roundhill Memory ETF',      type:'USD' },
-    // ── spare slots ──────────────────────────────────────────
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'MU.TO',   sh:890,  book:33454,  name:'Micron CDR (MU.TO)',        type:'MU_CDR' },
+    { t:'DRAM',    sh:1189, book:105342, name:'Roundhill Memory ETF',      type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
   ],
 
   inc: [
-    { t:'NVDY',   sh:3120, book:43680,  name:'YieldMax NVDA ETF',         type:'USD' },
-    { t:'FBY',    sh:1530, book:30146,  name:'YieldMax META ETF',         type:'USD' },
-    { t:'NFLY',   sh:230,  book:5113,   name:'YieldMax NFLX ETF',         type:'USD' },
-    // ── spare slots ──────────────────────────────────────────
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'NVDY',    sh:3120, book:43680,  name:'YieldMax NVDA ETF',         type:'USD' },
+    { t:'FBY',     sh:1530, book:30146,  name:'YieldMax META ETF',         type:'USD' },
+    { t:'NFLY',    sh:230,  book:5113,   name:'YieldMax NFLX ETF',         type:'USD' },
+    { t:'HMAX.TO', sh:0,    book:0,      name:'Hamilton Can Financials',   type:'CAD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+  energy: [
+    { t:'WCP.TO',  sh:0,    book:0,      name:'Whitecap Resources',        type:'CAD' },
+    { t:'TVE.TO',  sh:0,    book:0,      name:'Tamarack Valley Energy',    type:'CAD' },
+    { t:'PEI.V',   sh:157400, book:7083, name:'Prospera Energy',           type:'CAD' },
+    { t:'PPL.TO',  sh:0,    book:0,      name:'Pembina Pipeline',          type:'CAD' },
+    { t:'EXE',     sh:0,    book:0,      name:'Expand Energy (nat gas)',   type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'CAD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'CAD' },
   ],
 
   watch: [
-    { t:'NVDA',   sh:0,    book:0,      name:'Nvidia (NVDY signal)',       type:'USD' },
-    { t:'PRIM',   sh:151,  book:42318,  name:'Primoris Services',         type:'USD' },
-    { t:'V',      sh:128,  book:70965,  name:'Visa Inc',                  type:'USD' },
-    { t:'RITM',   sh:0,    book:0,      name:'Rithm Capital (watchlist)', type:'USD' },
-    { t:'GRID',   sh:0,    book:0,      name:'GRID ETF (watchlist)',       type:'USD' },
-    { t:'XNDU',   sh:0,    book:0,      name:'Xanadu Quantum (watchlist)',type:'USD' },
-    // ── spare slots ──────────────────────────────────────────
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',       sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'NVDA',    sh:0,    book:0,      name:'Nvidia (NVDY signal)',       type:'USD' },
+    { t:'PRIM',    sh:151,  book:42318,  name:'Primoris Services',         type:'USD' },
+    { t:'V',       sh:128,  book:70965,  name:'Visa Inc',                  type:'USD' },
+    { t:'RITM',    sh:0,    book:0,      name:'Rithm Capital',             type:'USD' },
+    { t:'GRID',    sh:0,    book:0,      name:'GRID ETF',                  type:'USD' },
+    { t:'XNDU',    sh:0,    book:0,      name:'Xanadu Quantum',            type:'USD' },
+    { t:'VST',     sh:0,    book:0,      name:'Vistra Corp (nuclear/AI)',  type:'USD' },
+    { t:'ETN',     sh:0,    book:0,      name:'Eaton Corp (power mgmt)',   type:'USD' },
+    { t:'AGX',     sh:0,    book:0,      name:'Argan Inc (power plant)',   type:'USD' },
+    { t:'POET',    sh:0,    book:0,      name:'POET Technologies (photon)',type:'USD' },
+    { t:'IONQ',    sh:0,    book:0,      name:'IonQ (quantum computing)',  type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+  ],
+
+  other: [
+    { t:'AMZN.TO', sh:90,   book:2617,   name:'Amazon CDR (Earl RSP)',     type:'CAD' },
+    { t:'PLAN.V',  sh:50266, book:13823, name:'Progressive Planet',        type:'CAD' },
+    { t:'MA',      sh:0,    book:0,      name:'Mastercard (watching)',      type:'USD' },
+    { t:'TOI.NE',  sh:0,    book:0,      name:'Topicus.com',               type:'CAD' },
+    { t:'SMCI',    sh:0,    book:0,      name:'Super Micro Computer',      type:'USD' },
+    { t:'KKR',     sh:0,    book:0,      name:'KKR & Co',                  type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
   ],
 
 };
@@ -125,6 +153,9 @@ const SECTIONS = {
 // ════════════════════════════════════════════════════════════
 
 let FX = 1.3988;
+// MU.TO CDR confirmed ratio from screenshots: $47.88 CAD when MU = $1,083.96 USD
+const MU_CDR_RATIO = 47.88 / 1083.96; // = 0.04417
+
 const LOGS = [];
 const lg = m => { LOGS.push(m); };
 const toggleDebug = () => {
@@ -132,8 +163,6 @@ const toggleDebug = () => {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
   el.textContent = LOGS.join('\n');
 };
-
-const CDR_RATIO = 37.59 / 775;
 
 const PROXIES = [
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
@@ -172,13 +201,15 @@ async function getQ(ticker) {
 function calcMV(pos, q) {
   if (!q || pos.sh === 0) return { mvCAD: 0, glCAD: 0, dayCAD: 0 };
   let mvCAD = 0, dayCAD = 0;
-  if (pos.type === 'CDR') {
-    mvCAD = pos.sh * q.price * CDR_RATIO * FX;
-    dayCAD = pos.sh * q.change * CDR_RATIO * FX;
+  if (pos.type === 'MU_CDR') {
+    // MU.TO CDR: price in CAD = MU_USD × confirmed ratio
+    const cdrCAD = q.price * MU_CDR_RATIO;
+    mvCAD = pos.sh * cdrCAD;
+    dayCAD = pos.sh * q.change * MU_CDR_RATIO;
   } else if (pos.type === 'CAD') {
     mvCAD = pos.sh * q.price;
     dayCAD = pos.sh * q.change;
-  } else {
+  } else { // USD
     mvCAD = pos.sh * q.price * FX;
     dayCAD = pos.sh * q.change * FX;
   }
@@ -186,12 +217,10 @@ function calcMV(pos, q) {
 }
 
 function makeRow(pos, q) {
-  // Empty slot
   if (!pos.t) {
-    return `<div class="row empty"><div><div class="ticker" style="color:#1e2d4a">— empty slot —</div><div class="rname">Replace t:'' with a ticker symbol</div></div><div class="right"><div class="price neu">—</div></div></div>`;
+    return `<div class="row empty"><div><div class="ticker" style="color:#1e2d4a">— spare slot —</div><div class="rname" style="color:#1e2d4a">Replace t:'' with ticker symbol</div></div><div class="right"><div class="price neu">—</div></div></div>`;
   }
-
-  const { mvCAD, glCAD, dayCAD } = calcMV(pos, q);
+  const { mvCAD, glCAD } = calcMV(pos, q);
   const glPct = pos.book > 0 ? (glCAD / pos.book) * 100 : 0;
   let pStr = '<span class="spin"></span>';
   let cStr = '';
@@ -201,8 +230,8 @@ function makeRow(pos, q) {
     pStr = '<span class="err">failed — tap Refresh</span>';
   } else if (q) {
     pCls = q.pct >= 0 ? 'pos' : 'neg';
-    if (pos.type === 'CDR') {
-      const cdrCAD = (q.price * CDR_RATIO * FX).toFixed(2);
+    if (pos.type === 'MU_CDR') {
+      const cdrCAD = (q.price * MU_CDR_RATIO).toFixed(2);
       pStr = `$${cdrCAD} CAD <span style="color:#475569;font-size:9px">MU $${q.price.toFixed(0)}</span>`;
     } else if (pos.type === 'CAD') {
       pStr = `$${q.price.toFixed(2)} CAD`;
@@ -213,7 +242,7 @@ function makeRow(pos, q) {
   }
 
   const shStr = pos.sh > 0
-    ? `${pos.sh.toLocaleString()} sh · book $${Math.round(pos.book).toLocaleString()} CAD`
+    ? `${pos.sh.toLocaleString()} sh · book $${Math.round(pos.book).toLocaleString()}`
     : 'watch only';
   const mvStr = mvCAD > 0 ? `MV $${Math.round(mvCAD).toLocaleString()} CAD` : '';
   const glStr = pos.sh > 0 && q && q !== false
@@ -238,59 +267,50 @@ function makeRow(pos, q) {
 async function fetchAll() {
   LOGS.length = 0;
   const btn = document.getElementById('btn');
-  btn.disabled = true;
-  btn.textContent = '⟳ Loading...';
+  btn.disabled = true; btn.textContent = '⟳ Loading...';
   document.getElementById('status').innerHTML = '<span class="spin"></span>Fetching prices...';
 
-  // Show loading state
   for (const [sec, positions] of Object.entries(SECTIONS)) {
     document.getElementById('g-'+sec).innerHTML = positions.map(p => makeRow(p, null)).join('');
   }
 
-  // FX rate
   const fxQ = await getQ('USDCAD=X');
   if (fxQ) FX = fxQ.price;
 
-  // Collect all unique non-empty tickers
+  // MU.TO CDR — fetch MU (USD) for the calculation
   const allPos = Object.values(SECTIONS).flat().filter(p => p.t !== '');
-  const unique = [...new Set(allPos.map(p => p.t))];
+  // For MU_CDR type, we need to fetch MU not MU.TO
+  const tickers = [...new Set(allPos.map(p => p.type === 'MU_CDR' ? 'MU' : p.t))];
 
-  // Fetch all in parallel
   const quoteMap = {};
-  await Promise.all(unique.map(async ticker => {
-    quoteMap[ticker] = (await getQ(ticker)) ?? false;
+  await Promise.all(tickers.map(async t => {
+    quoteMap[t] = (await getQ(t)) ?? false;
   }));
 
-  // Calculate totals and render
   let tMV = 0, tBook = 0, tDay = 0;
 
   for (const [sec, positions] of Object.entries(SECTIONS)) {
     const html = positions.map(pos => {
-      const q = pos.t ? quoteMap[pos.t] : null;
-      const row = makeRow(pos, q);
-      if (pos.t && pos.sh > 0 && q && q !== false) {
+      const lookupKey = pos.type === 'MU_CDR' ? 'MU' : pos.t;
+      const q = pos.t ? quoteMap[lookupKey] : null;
+      if (pos.sh > 0 && q && q !== false) {
         const { mvCAD, dayCAD } = calcMV(pos, q);
-        tMV += mvCAD;
-        tBook += pos.book;
-        tDay += dayCAD;
+        tMV += mvCAD; tBook += pos.book; tDay += dayCAD;
       }
-      return row;
+      return makeRow(pos, q);
     });
     document.getElementById('g-'+sec).innerHTML = html.join('');
   }
 
-  // Summary cards
   const gl = tMV - tBook;
-  const glP = tBook > 0 ? (gl / tBook) * 100 : 0;
+  const glP = tBook > 0 ? (gl/tBook)*100 : 0;
 
   document.getElementById('sMV').textContent = '$' + Math.round(tMV).toLocaleString();
   document.getElementById('sMV').className = 'val pos';
-
   const ge = document.getElementById('sGL');
   ge.textContent = (gl >= 0 ? '+$' : '-$') + Math.abs(Math.round(gl)).toLocaleString();
   ge.className = `val ${gl >= 0 ? 'pos' : 'neg'}`;
   document.getElementById('sGLp').textContent = `${glP >= 0 ? '+' : ''}${glP.toFixed(1)}% vs book`;
-
   const de = document.getElementById('sDay');
   de.textContent = (tDay >= 0 ? '+$' : '-$') + Math.abs(Math.round(tDay)).toLocaleString();
   de.className = `val ${tDay >= 0 ? 'pos' : 'neg'}`;
@@ -298,11 +318,9 @@ async function fetchAll() {
   const failed = Object.values(quoteMap).filter(q => q === false).length;
   const now = new Date();
   document.getElementById('status').textContent =
-    `Updated ${now.toLocaleTimeString()} · FX ${FX.toFixed(4)} · ${failed > 0 ? failed + ' ticker(s) failed — try Refresh' : 'All prices loaded ✓'}`;
-
+    `Updated ${now.toLocaleTimeString()} · FX ${FX.toFixed(4)} · ${failed > 0 ? failed+' failed — tap Refresh' : 'All prices loaded ✓'}`;
   document.getElementById('debugOut').textContent = LOGS.join('\n');
-  btn.disabled = false;
-  btn.textContent = '↻ Refresh';
+  btn.disabled = false; btn.textContent = '↻ Refresh';
 }
 
 fetchAll();
