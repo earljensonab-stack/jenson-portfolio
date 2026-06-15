@@ -5,34 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jenson Portfolio</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0e1a; color: #e2e8f0; padding: 16px; min-height: 100vh; }
-h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
-.sub { color: #475569; font-size: 11px; margin-bottom: 16px; }
-.btn { background: #1e3a5f; color: #93c5fd; border: 1px solid #1e4080; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; margin-bottom: 16px; margin-right: 8px; }
-.btn:hover { background: #1d4ed8; } .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
-.card { background: #0f172a; border: 1px solid #1e2d4a; border-radius: 10px; padding: 12px; }
-.card .label { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.card .val { font-size: 18px; font-weight: 800; }
-.pos { color: #34d399; } .neg { color: #f87171; } .neu { color: #94a3b8; }
-.section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #334155; margin: 14px 0 6px; }
-.row { background: #0f172a; border: 1px solid #1e2d4a; border-radius: 8px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-.ticker { font-size: 14px; font-weight: 800; }
-.rname { font-size: 10px; color: #475569; margin-top: 1px; }
-.rmeta { font-size: 10px; color: #334155; margin-top: 3px; }
-.right { text-align: right; }
-.price { font-size: 14px; font-weight: 700; }
-.chg { font-size: 11px; margin-top: 2px; }
-.mv { font-size: 10px; color: #475569; margin-top: 4px; }
-.gl { font-size: 11px; font-weight: 700; margin-top: 1px; }
-.empty { opacity: 0.2; }
-.status { text-align: center; font-size: 10px; color: #334155; margin-top: 12px; }
-.err { color: #f87171; font-size: 10px; }
-.spin { display: inline-block; width: 12px; height: 12px; border: 2px solid #1e2d4a; border-top-color: #60a5fa; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; margin-right: 4px; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #080c14; color: #e2e8f0; padding: 12px 14px; min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; }
+
+/* ── Header ── */
+h1 { font-size: 17px; font-weight: 700; color: #e2e8f0; letter-spacing: -0.3px; margin-bottom: 2px; }
+.sub { font-size: 10px; color: #3d5070; letter-spacing: 0.02em; margin-bottom: 12px; }
+
+/* ── Buttons ── */
+.btn { background: #111827; color: #60a5fa; border: 1px solid #1e3a5f; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; margin-bottom: 12px; margin-right: 6px; letter-spacing: 0.01em; transition: border-color 0.15s; }
+.btn:hover { border-color: #3b82f6; color: #93c5fd; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Summary cards ── */
+.summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 14px; }
+.card { background: #0d1420; border: 1px solid #162030; border-radius: 8px; padding: 10px 12px; }
+.card .label { font-size: 9px; font-weight: 600; color: #3d5070; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.card .val { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600; letter-spacing: -0.5px; }
+.card .sub2 { font-size: 10px; margin-top: 2px; font-weight: 500; }
+
+/* ── Section headers ── */
+.section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2a3f58; margin: 12px 0 4px 2px; display: flex; align-items: center; gap: 6px; }
+.section::after { content: ''; flex: 1; height: 1px; background: #111d2e; }
+
+/* ── Stock rows — tighter and crisper ── */
+.row { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 7px 11px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 3px; transition: border-color 0.12s; }
+.row:hover { border-color: #1e3a5f; }
+.row.empty { opacity: 0.15; }
+
+/* Left side */
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: #e2e8f0; letter-spacing: 0.02em; line-height: 1; }
+.rname { font-size: 10px; color: #3d5070; margin-top: 2px; font-weight: 400; }
+.rmeta { font-size: 9px; color: #253347; margin-top: 2px; font-weight: 400; }
+
+/* Right side */
+.right { text-align: right; min-width: 120px; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: -0.2px; line-height: 1; }
+.chg { font-size: 10px; font-weight: 600; margin-top: 2px; letter-spacing: 0.01em; }
+.mv { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #3d5070; margin-top: 4px; }
+.gl { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+/* Colours */
+.pos { color: #22d3a0; }
+.neg { color: #f87171; }
+.neu { color: #4a6080; }
+
+/* Status / footer */
+.status { text-align: center; font-size: 9px; color: #253347; margin-top: 10px; letter-spacing: 0.03em; }
+.err { color: #f87171; font-size: 9px; }
+.note { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 10px 12px; margin-top: 12px; font-size: 10px; color: #3d5070; line-height: 1.6; }
+#debugOut { display:none; margin-top:10px; background:#0d1420; border:1px solid #162030; border-radius:6px; padding:10px; font-size:9px; color:#3d5070; white-space:pre-wrap; font-family:'JetBrains Mono',monospace; }
+
+.spin { display: inline-block; width: 10px; height: 10px; border: 1.5px solid #162030; border-top-color: #60a5fa; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 4px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.note { background: #0f172a; border: 1px solid #1e2d4a; border-radius: 8px; padding: 12px; margin-top: 14px; font-size: 11px; color: #475569; line-height: 1.7; }
-#debugOut { display:none; margin-top:12px; background:#0f172a; border:1px solid #1e2d4a; border-radius:8px; padding:12px; font-size:10px; color:#64748b; white-space:pre-wrap; }
 </style>
 </head>
 <body>
@@ -42,7 +68,7 @@ h1 { color: #60a5fa; font-size: 20px; margin-bottom: 4px; }
 <button class="btn" onclick="toggleDebug()" style="background:#1a1a2e;color:#64748b;border-color:#1e2d4a;font-size:11px;">Debug</button>
 <div class="summary">
   <div class="card"><div class="label">Market Value</div><div class="val neu" id="sMV">—</div></div>
-  <div class="card"><div class="label">Total G/L</div><div class="val neu" id="sGL">—</div><div style="font-size:10px;color:#475569;margin-top:2px" id="sGLp"></div></div>
+  <div class="card"><div class="label">Total G/L</div><div class="val neu" id="sGL">—</div><div class="sub2 neu" id="sGLp"></div></div>
   <div class="card"><div class="label">Day Change</div><div class="val neu" id="sDay">—</div></div>
 </div>
 
@@ -86,7 +112,7 @@ const SECTIONS = {
 
   mem: [
     { t:'MU.TO',   sh:890,  book:33454,  name:'Micron CDR (MU.TO)',        type:'MU_CDR' },
-    { t:'DRAM',    sh:1189, book:105342, name:'Roundhill Memory ETF',      type:'USD' },
+    { t:'DRAM',    sh:964,  book:87308,  name:'Roundhill Memory ETF',      type:'USD' },
     // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
@@ -105,7 +131,7 @@ const SECTIONS = {
   energy: [
     { t:'WCP.TO',  sh:0,    book:0,      name:'Whitecap Resources',        type:'CAD' },
     { t:'TVE.TO',  sh:0,    book:0,      name:'Tamarack Valley Energy',    type:'CAD' },
-    { t:'PEI.V',   sh:157400, book:7083, name:'Prospera Energy',           type:'CAD' },
+    { t:'PEI.V',   sh:194000, book:18109, name:'Prospera Energy (all accts)', type:'CAD' },
     { t:'PPL.TO',  sh:0,    book:0,      name:'Pembina Pipeline',          type:'CAD' },
     { t:'EXE',     sh:0,    book:0,      name:'Expand Energy (nat gas)',   type:'USD' },
     // spare slots
@@ -134,7 +160,7 @@ const SECTIONS = {
 
   other: [
     { t:'AMZN.TO', sh:90,   book:2617,   name:'Amazon CDR (Earl RSP)',     type:'CAD' },
-    { t:'PLAN.V',  sh:50266, book:13823, name:'Progressive Planet',        type:'CAD' },
+    { t:'PLAN.V',  sh:50266, book:13823, name:'Progressive Planet (50K pending TFSA)', type:'CAD' },
     { t:'MA',      sh:0,    book:0,      name:'Mastercard (watching)',      type:'USD' },
     { t:'TOI.NE',  sh:0,    book:0,      name:'Topicus.com',               type:'CAD' },
     { t:'SMCI',    sh:0,    book:0,      name:'Super Micro Computer',      type:'USD' },
@@ -310,7 +336,9 @@ async function fetchAll() {
   const ge = document.getElementById('sGL');
   ge.textContent = (gl >= 0 ? '+$' : '-$') + Math.abs(Math.round(gl)).toLocaleString();
   ge.className = `val ${gl >= 0 ? 'pos' : 'neg'}`;
-  document.getElementById('sGLp').textContent = `${glP >= 0 ? '+' : ''}${glP.toFixed(1)}% vs book`;
+  const glpEl = document.getElementById('sGLp');
+  glpEl.textContent = `${glP >= 0 ? '+' : ''}${glP.toFixed(1)}% vs book`;
+  glpEl.className = `sub2 ${gl >= 0 ? 'pos' : 'neg'}`;
   const de = document.getElementById('sDay');
   de.textContent = (tDay >= 0 ? '+$' : '-$') + Math.abs(Math.round(tDay)).toLocaleString();
   de.className = `val ${tDay >= 0 ? 'pos' : 'neg'}`;
@@ -328,3 +356,4 @@ setInterval(fetchAll, 300000);
 </script>
 </body>
 </html>
+
