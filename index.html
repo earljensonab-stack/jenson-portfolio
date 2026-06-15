@@ -7,44 +7,44 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #080c14; color: #e2e8f0; padding: 12px 14px; min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #080c14; color: #e2e8f0; padding: 12px 14px; min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
 
 /* ── Header ── */
-h1 { font-size: 17px; font-weight: 700; color: #e2e8f0; letter-spacing: -0.3px; margin-bottom: 2px; }
-.sub { font-size: 10px; color: #3d5070; letter-spacing: 0.02em; margin-bottom: 12px; }
+h1 { font-size: 19px; font-weight: 700; color: #e2e8f0; letter-spacing: -0.3px; margin-bottom: 2px; }
+.sub { font-size: 11px; color: #3d5070; letter-spacing: 0.02em; margin-bottom: 12px; }
 
 /* ── Buttons ── */
-.btn { background: #111827; color: #60a5fa; border: 1px solid #1e3a5f; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; margin-bottom: 12px; margin-right: 6px; letter-spacing: 0.01em; transition: border-color 0.15s; }
+.btn { background: #111827; color: #60a5fa; border: 1px solid #1e3a5f; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 12px; margin-right: 6px; letter-spacing: 0.01em; transition: border-color 0.15s; }
 .btn:hover { border-color: #3b82f6; color: #93c5fd; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ── Summary cards ── */
 .summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 14px; }
-.card { background: #0d1420; border: 1px solid #162030; border-radius: 8px; padding: 10px 12px; }
-.card .label { font-size: 9px; font-weight: 600; color: #3d5070; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-.card .val { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 600; letter-spacing: -0.5px; }
-.card .sub2 { font-size: 10px; margin-top: 2px; font-weight: 500; }
+.card { background: #0d1420; border: 1px solid #162030; border-radius: 8px; padding: 11px 13px; }
+.card .label { font-size: 10px; font-weight: 600; color: #4a6580; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+.card .val { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; letter-spacing: -0.5px; }
+.card .sub2 { font-size: 11px; margin-top: 3px; font-weight: 500; }
 
 /* ── Section headers ── */
-.section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2a3f58; margin: 12px 0 4px 2px; display: flex; align-items: center; gap: 6px; }
+.section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2a3f58; margin: 13px 0 5px 2px; display: flex; align-items: center; gap: 6px; }
 .section::after { content: ''; flex: 1; height: 1px; background: #111d2e; }
 
-/* ── Stock rows — tighter and crisper ── */
-.row { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 7px 11px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 3px; transition: border-color 0.12s; }
+/* ── Stock rows ── */
+.row { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 8px 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 3px; transition: border-color 0.12s; }
 .row:hover { border-color: #1e3a5f; }
 .row.empty { opacity: 0.15; }
 
 /* Left side */
-.ticker { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: #e2e8f0; letter-spacing: 0.02em; line-height: 1; }
-.rname { font-size: 10px; color: #3d5070; margin-top: 2px; font-weight: 400; }
-.rmeta { font-size: 9px; color: #253347; margin-top: 2px; font-weight: 400; }
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; color: #e2e8f0; letter-spacing: 0.02em; line-height: 1; }
+.rname { font-size: 11px; color: #4a6080; margin-top: 3px; font-weight: 400; }
+.rmeta { font-size: 10px; color: #2d4460; margin-top: 2px; font-weight: 400; }
 
 /* Right side */
-.right { text-align: right; min-width: 120px; }
-.price { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: -0.2px; line-height: 1; }
-.chg { font-size: 10px; font-weight: 600; margin-top: 2px; letter-spacing: 0.01em; }
-.mv { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #3d5070; margin-top: 4px; }
-.gl { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; margin-top: 1px; }
+.right { text-align: right; min-width: 130px; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1; }
+.chg { font-size: 11px; font-weight: 600; margin-top: 3px; letter-spacing: 0.01em; }
+.mv { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8ba8c4; margin-top: 4px; font-weight: 500; }
+.gl { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; margin-top: 2px; }
 
 /* Colours */
 .pos { color: #22d3a0; }
@@ -98,7 +98,7 @@ const SECTIONS = {
 
   infra: [
     { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',  type:'USD' },
-    { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX)',           type:'CAD' },
+    { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX) — 76+18+8',  type:'CAD' },
     { t:'VRT',     sh:125,  book:32924,  name:'Vertiv Holdings',           type:'USD' },
     { t:'DELL',    sh:32,   book:9553,   name:'Dell Technologies CDR',     type:'USD' },
     { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',              type:'USD' },
@@ -119,7 +119,7 @@ const SECTIONS = {
   ],
 
   inc: [
-    { t:'NVDY',    sh:3120, book:43680,  name:'YieldMax NVDA ETF',         type:'USD' },
+    { t:'NVDY',    sh:3120, book:60296,  name:'YieldMax NVDA ETF',         type:'USD' },
     { t:'FBY',     sh:1530, book:30146,  name:'YieldMax META ETF',         type:'USD' },
     { t:'NFLY',    sh:230,  book:5113,   name:'YieldMax NFLX ETF',         type:'USD' },
     { t:'HMAX.TO', sh:0,    book:0,      name:'Hamilton Can Financials',   type:'CAD' },
@@ -140,7 +140,7 @@ const SECTIONS = {
   ],
 
   watch: [
-    { t:'NVDA',    sh:0,    book:0,      name:'Nvidia (NVDY signal)',       type:'USD' },
+    { t:'NVDA',    sh:153,  book:6347,   name:'Nvidia CDR (Earl TFSA)',    type:'CAD' },
     { t:'PRIM',    sh:151,  book:42318,  name:'Primoris Services',         type:'USD' },
     { t:'V',       sh:128,  book:47409,  name:'Visa Inc',                  type:'USD' },
     { t:'RITM',    sh:0,    book:0,      name:'Rithm Capital',             type:'USD' },
@@ -356,4 +356,3 @@ setInterval(fetchAll, 300000);
 </script>
 </body>
 </html>
-
