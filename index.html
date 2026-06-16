@@ -127,7 +127,7 @@ const SECTIONS = {
     { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',    type:'USD' },
     { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX)',             type:'CAD' },
     { t:'VRT',     sh:125,  book:35390,  name:'Vertiv Holdings',             type:'USD' },
-    { t:'NVDA',    sh:153,  book:6347,   name:'Nvidia CDR (Earl TFSA)',      type:'CAD' },
+    { t:'NVDA',    sh:153,  book:6347,   name:'Nvidia CDR (Earl TFSA)',      type:'NVDA_CDR' },
     { t:'DELL',    sh:32,   book:9553,   name:'Dell Technologies CDR',       type:'USD' },
     { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',                type:'USD' },
     { t:'COHR',    sh:11,   book:4347,   name:'Coherent Corp',               type:'USD' },
@@ -216,6 +216,8 @@ const OWNED_SECTIONS = new Set(['infra', 'mem', 'inc', 'energy', 'other']);
 
 let FX = 1.3988;
 const MU_CDR_RATIO = 47.88 / 1083.96;
+// NVDA CDR confirmed: $47.62 CAD when NVDA = $212 USD → ratio 0.2246
+const NVDA_CDR_RATIO = 47.62 / 212.00;
 
 const LOGS = [];
 const lg = m => LOGS.push(m);
@@ -262,6 +264,9 @@ function calcMV(pos, q) {
   if (pos.type === 'MU_CDR') {
     mvCAD = pos.sh * q.price * MU_CDR_RATIO * FX;
     dayCAD = pos.sh * q.change * MU_CDR_RATIO * FX;
+  } else if (pos.type === 'NVDA_CDR') {
+    mvCAD = pos.sh * q.price * NVDA_CDR_RATIO * FX;
+    dayCAD = pos.sh * q.change * NVDA_CDR_RATIO * FX;
   } else if (pos.type === 'CAD') {
     mvCAD = pos.sh * q.price;
     dayCAD = pos.sh * q.change;
@@ -292,6 +297,9 @@ function makeRow(pos, q, isWatch) {
     if (pos.type === 'MU_CDR') {
       const cdrCAD = (q.price * MU_CDR_RATIO * FX).toFixed(2);
       pStr = `$${cdrCAD} <span style="color:#4a6070;font-size:10px">MU $${q.price.toFixed(0)}</span>`;
+    } else if (pos.type === 'NVDA_CDR') {
+      const cdrCAD = (q.price * NVDA_CDR_RATIO * FX).toFixed(2);
+      pStr = `$${cdrCAD} CAD <span style="color:#4a6070;font-size:10px">NVDA $${q.price.toFixed(0)}</span>`;
     } else if (pos.type === 'CAD') {
       pStr = `$${q.price.toFixed(2)} CAD`;
     } else {
@@ -342,7 +350,11 @@ async function fetchAll() {
 
   // Collect unique tickers — MU_CDR fetches MU not MU.TO
   const allPos = Object.values(SECTIONS).flat().filter(p => p.t !== '');
-  const tickers = [...new Set(allPos.map(p => p.type === 'MU_CDR' ? 'MU' : p.t))];
+  const tickers = [...new Set(allPos.map(p => {
+    if (p.type === 'MU_CDR') return 'MU';
+    if (p.type === 'NVDA_CDR') return 'NVDA';
+    return p.t;
+  }))];
 
   // Fetch all in parallel
   const quoteMap = {};
@@ -356,7 +368,7 @@ async function fetchAll() {
     const isWatch = WATCH_SECTIONS.has(sec);
     const owned = OWNED_SECTIONS.has(sec);
     const html = positions.map(pos => {
-      const key = pos.type === 'MU_CDR' ? 'MU' : pos.t;
+      const key = pos.type === 'MU_CDR' ? 'MU' : pos.type === 'NVDA_CDR' ? 'NVDA' : pos.t;
       const q = pos.t ? quoteMap[key] : null;
       if (owned && pos.sh > 0 && q && q !== false) {
         const { mvCAD, dayCAD } = calcMV(pos, q);
