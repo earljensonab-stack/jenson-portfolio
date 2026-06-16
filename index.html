@@ -5,171 +5,202 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jenson Portfolio</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #080c14; color: #e2e8f0; padding: 12px 14px; min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
+body { font-family: 'Inter', sans-serif; background: #080c14; color: #c8d8ea; padding: 14px 16px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-/* ── Header ── */
-h1 { font-size: 19px; font-weight: 700; color: #e2e8f0; letter-spacing: -0.3px; margin-bottom: 2px; }
-.sub { font-size: 11px; color: #3d5070; letter-spacing: 0.02em; margin-bottom: 12px; }
+/* Header */
+h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; margin-bottom: 3px; }
+.sub { font-size: 12px; color: #6a85a0; margin-bottom: 14px; }
 
-/* ── Buttons ── */
-.btn { background: #111827; color: #60a5fa; border: 1px solid #1e3a5f; padding: 7px 16px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 12px; margin-right: 6px; letter-spacing: 0.01em; transition: border-color 0.15s; }
-.btn:hover { border-color: #3b82f6; color: #93c5fd; }
+/* Buttons */
+.btn { background: #0f1e30; color: #7ab8f5; border: 1px solid #1e4070; padding: 8px 18px; border-radius: 7px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 14px; margin-right: 8px; transition: border-color 0.15s; }
+.btn:hover { border-color: #3b82f6; color: #a8d0ff; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-/* ── Summary cards ── */
-.summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 14px; }
-.card { background: #0d1420; border: 1px solid #162030; border-radius: 8px; padding: 11px 13px; }
-.card .label { font-size: 10px; font-weight: 600; color: #4a6580; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
-.card .val { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; letter-spacing: -0.5px; }
-.card .sub2 { font-size: 11px; margin-top: 3px; font-weight: 500; }
+/* Summary cards */
+.summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+.card { background: #0c1828; border: 1px solid #1a3050; border-radius: 10px; padding: 13px 15px; }
+.card .label { font-size: 11px; font-weight: 600; color: #5a7898; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.card .val { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
+.card .sub2 { font-size: 12px; margin-top: 4px; font-weight: 600; }
 
-/* ── Section headers ── */
-.section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2a3f58; margin: 13px 0 5px 2px; display: flex; align-items: center; gap: 6px; }
-.section::after { content: ''; flex: 1; height: 1px; background: #111d2e; }
+/* Section headers — owned vs watchlist visually distinct */
+.section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; margin: 16px 0 6px 2px; display: flex; align-items: center; gap: 8px; }
+.section::after { content: ''; flex: 1; height: 1px; }
+.section.owned { color: #7ab8f5; }
+.section.owned::after { background: #1a3050; }
+.section.watching { color: #8a7a5a; }
+.section.watching::after { background: #251e10; }
 
-/* ── Stock rows ── */
-.row { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 8px 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; margin-bottom: 3px; transition: border-color 0.12s; }
-.row:hover { border-color: #1e3a5f; }
-.row.empty { opacity: 0.15; }
+/* Stock rows — OWNED */
+.row { border-radius: 8px; padding: 10px 14px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-bottom: 4px; transition: border-color 0.12s; }
+.row.owned { background: #0c1828; border: 1px solid #1a3050; }
+.row.owned:hover { border-color: #2a5080; }
+
+/* Stock rows — WATCH ONLY */
+.row.watch { background: #0e0f0a; border: 1px solid #1e1e10; }
+.row.watch:hover { border-color: #2e2e18; }
+.row.watch .ticker { color: #9aaa88; }
+.row.watch .rname { color: #5a6050; }
+.row.watch .price { color: #9aaa88; }
+.row.watch .chg { opacity: 0.8; }
+
+/* Empty slots */
+.row.empty { opacity: 0.1; }
 
 /* Left side */
-.ticker { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; color: #e2e8f0; letter-spacing: 0.02em; line-height: 1; }
-.rname { font-size: 11px; color: #4a6080; margin-top: 3px; font-weight: 400; }
-.rmeta { font-size: 10px; color: #2d4460; margin-top: 2px; font-weight: 400; }
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #e0ecf8; letter-spacing: 0.02em; line-height: 1; }
+.rname { font-size: 12px; color: #6a85a0; margin-top: 4px; font-weight: 400; }
+.rmeta { font-size: 11px; color: #4a6070; margin-top: 3px; font-weight: 400; }
 
 /* Right side */
-.right { text-align: right; min-width: 130px; }
-.price { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; letter-spacing: -0.2px; line-height: 1; }
-.chg { font-size: 11px; font-weight: 600; margin-top: 3px; letter-spacing: 0.01em; }
-.mv { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8ba8c4; margin-top: 4px; font-weight: 500; }
-.gl { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; margin-top: 2px; }
+.right { text-align: right; min-width: 140px; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; letter-spacing: -0.2px; line-height: 1; }
+.chg { font-size: 12px; font-weight: 600; margin-top: 3px; }
+.mv { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #7a9ab8; margin-top: 5px; font-weight: 500; }
+.gl { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; margin-top: 2px; }
 
 /* Colours */
-.pos { color: #22d3a0; }
-.neg { color: #f87171; }
-.neu { color: #4a6080; }
+.pos { color: #28dba8; }
+.neg { color: #f87878; }
+.neu { color: #5a7898; }
 
-/* Status / footer */
-.status { text-align: center; font-size: 9px; color: #253347; margin-top: 10px; letter-spacing: 0.03em; }
-.err { color: #f87171; font-size: 9px; }
-.note { background: #0d1420; border: 1px solid #162030; border-radius: 6px; padding: 10px 12px; margin-top: 12px; font-size: 10px; color: #3d5070; line-height: 1.6; }
-#debugOut { display:none; margin-top:10px; background:#0d1420; border:1px solid #162030; border-radius:6px; padding:10px; font-size:9px; color:#3d5070; white-space:pre-wrap; font-family:'JetBrains Mono',monospace; }
-
-.spin { display: inline-block; width: 10px; height: 10px; border: 1.5px solid #162030; border-top-color: #60a5fa; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 4px; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* Status */
+.status { text-align: center; font-size: 11px; color: #3a5060; margin-top: 12px; }
+.err { color: #f87878; font-size: 11px; }
+.note { background: #0c1828; border: 1px solid #1a3050; border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 11px; color: #5a7898; line-height: 1.7; }
+#debugOut { display:none; margin-top:10px; background:#0c1828; border:1px solid #1a3050; border-radius:8px; padding:12px; font-size:10px; color:#4a6070; white-space:pre-wrap; font-family:'JetBrains Mono',monospace; }
+.spin { display:inline-block; width:11px; height:11px; border:2px solid #1a3050; border-top-color:#7ab8f5; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:5px; }
+@keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 <body>
+
 <h1>Jenson Portfolio</h1>
-<div class="sub">Live prices · CAD base · 15-min delayed · Updated automatically every 5 min</div>
+<div class="sub">Live prices · CAD base · 15-min delayed · Auto-refresh every 5 min</div>
 <button class="btn" onclick="fetchAll()" id="btn">↻ Refresh</button>
-<button class="btn" onclick="toggleDebug()" style="background:#1a1a2e;color:#64748b;border-color:#1e2d4a;font-size:11px;">Debug</button>
+<button class="btn" onclick="toggleDebug()" style="background:#0a0c10;color:#4a6070;border-color:#1a2030;font-size:12px;">Debug</button>
+
 <div class="summary">
   <div class="card"><div class="label">Market Value</div><div class="val neu" id="sMV">—</div></div>
   <div class="card"><div class="label">Total G/L</div><div class="val neu" id="sGL">—</div><div class="sub2 neu" id="sGLp"></div></div>
   <div class="card"><div class="label">Day Change</div><div class="val neu" id="sDay">—</div></div>
 </div>
 
-<div class="section">⚡ AI Infrastructure — Core Holdings</div><div id="g-infra"></div>
-<div class="section">💾 Memory / HBM Thesis</div><div id="g-mem"></div>
-<div class="section">💰 YieldMax Income</div><div id="g-inc"></div>
-<div class="section">🛢 Energy — Watch</div><div id="g-energy"></div>
-<div class="section">👁 Watchlist — New Names</div><div id="g-watch"></div>
-<div class="section">📊 Positions — Other</div><div id="g-other"></div>
+<!-- OWNED POSITIONS -->
+<div class="section owned">⚡ AI Infrastructure</div><div id="g-infra"></div>
+<div class="section owned">💾 Memory / HBM</div><div id="g-mem"></div>
+<div class="section owned">💰 YieldMax Income</div><div id="g-inc"></div>
+<div class="section owned">🛢 Energy</div><div id="g-energy"></div>
+<div class="section owned">📊 Other Positions</div><div id="g-other"></div>
+
+<!-- WATCHLIST SEPARATOR -->
+<div style="margin:20px 0 8px;padding:8px 14px;background:#0e0f0a;border:1px solid #1e1e10;border-radius:8px;font-size:11px;color:#6a6040;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">
+  👁 Watchlist — not currently owned
+</div>
+
+<div class="section watching">🔬 Tech / AI Watchlist</div><div id="g-watch"></div>
+<div class="section watching">🛢 Energy Watchlist</div><div id="g-ewatch"></div>
 
 <div class="status" id="status">Tap Refresh to load prices</div>
 <div id="debugOut"></div>
-<div class="note"><strong style="color:#64748b">To add a ticker:</strong> Replace any blank entry (t:'') with the new symbol. Tell Claude and he updates the file. If prices fail, tap Refresh — proxy needs a retry occasionally.</div>
+<div class="note"><strong style="color:#7a9ab8">Blue rows</strong> = positions you own. <strong style="color:#8a8060">Olive rows</strong> = watchlist only. To add a ticker tell Claude — he updates the file in seconds.</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
 // PORTFOLIO DATA — EDIT THIS SECTION ONLY
 // ════════════════════════════════════════════════════════════
 // FORMAT: { t, sh, book, name, type }
-//   t:    ticker ('' = blank spare slot)
-//   sh:   shares (0 = watch only)
-//   book: book cost in CAD (0 if watch only)
-//   type: 'USD' | 'CAD' | 'MU_CDR' (special Micron CDR calc)
+//   t:    ticker symbol ('' = spare slot)
+//   sh:   shares owned (0 = watch only — goes to watchlist)
+//   book: book cost CAD (0 if watch only)
+//   type: 'USD' | 'CAD' | 'MU_CDR'
 // ════════════════════════════════════════════════════════════
 
 const SECTIONS = {
 
+  // ── OWNED POSITIONS ────────────────────────────────────────
+
   infra: [
-    { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',  type:'USD' },
-    { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX) — 76+18+8',  type:'CAD' },
-    { t:'VRT',     sh:125,  book:32924,  name:'Vertiv Holdings',           type:'USD' },
-    { t:'DELL',    sh:32,   book:9553,   name:'Dell Technologies CDR',     type:'USD' },
-    { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',              type:'USD' },
-    { t:'COHR',    sh:11,   book:4347,   name:'Coherent Corp',             type:'USD' },
-    { t:'APH',     sh:25,   book:4897,   name:'Amphenol Corp (RESP)',      type:'USD' },
+    { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',    type:'USD' },
+    { t:'CLS.TO',  sh:102,  book:37285,  name:'Celestica (TSX)',             type:'CAD' },
+    { t:'VRT',     sh:125,  book:35390,  name:'Vertiv Holdings',             type:'USD' },
+    { t:'NVDA',    sh:153,  book:6347,   name:'Nvidia CDR (Earl TFSA)',      type:'CAD' },
+    { t:'DELL',    sh:32,   book:9553,   name:'Dell Technologies CDR',       type:'USD' },
+    { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',                type:'USD' },
+    { t:'COHR',    sh:11,   book:4347,   name:'Coherent Corp',               type:'USD' },
+    { t:'APH',     sh:25,   book:4897,   name:'Amphenol Corp (RESP)',        type:'USD' },
     // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
   mem: [
-    { t:'MU.TO',   sh:890,  book:33454,  name:'Micron CDR (MU.TO)',        type:'MU_CDR' },
-    { t:'DRAM',    sh:964,  book:87308,  name:'Roundhill Memory ETF',      type:'USD' },
+    { t:'MU.TO',   sh:890,  book:33454,  name:'Micron CDR (MU.TO)',          type:'MU_CDR' },
+    { t:'DRAM',    sh:964,  book:87308,  name:'Roundhill Memory ETF',        type:'USD' },
     // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
   inc: [
-    { t:'NVDY',    sh:3120, book:60296,  name:'YieldMax NVDA ETF',         type:'USD' },
-    { t:'FBY',     sh:1530, book:30146,  name:'YieldMax META ETF',         type:'USD' },
-    { t:'NFLY',    sh:230,  book:5113,   name:'YieldMax NFLX ETF',         type:'USD' },
-    { t:'HMAX.TO', sh:0,    book:0,      name:'Hamilton Can Financials',   type:'CAD' },
+    { t:'NVDY',    sh:3120, book:60296,  name:'YieldMax NVDA ETF',           type:'USD' },
+    { t:'FBY',     sh:1530, book:32266,  name:'YieldMax META ETF',           type:'USD' },
+    { t:'NFLY',    sh:230,  book:5214,   name:'YieldMax NFLX ETF',           type:'USD' },
     // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
   energy: [
-    { t:'WCP.TO',  sh:0,    book:0,      name:'Whitecap Resources',        type:'CAD' },
-    { t:'TVE.TO',  sh:0,    book:0,      name:'Tamarack Valley Energy',    type:'CAD' },
     { t:'PEI.V',   sh:194000, book:18109, name:'Prospera Energy (all accts)', type:'CAD' },
-    { t:'PPL.TO',  sh:0,    book:0,      name:'Pembina Pipeline',          type:'CAD' },
-    { t:'EXE',     sh:0,    book:0,      name:'Expand Energy (nat gas)',   type:'USD' },
     // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'CAD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'CAD' },
-  ],
-
-  watch: [
-    { t:'NVDA',    sh:153,  book:6347,   name:'Nvidia CDR (Earl TFSA)',    type:'CAD' },
-    { t:'PRIM',    sh:151,  book:42318,  name:'Primoris Services',         type:'USD' },
-    { t:'V',       sh:128,  book:47409,  name:'Visa Inc',                  type:'USD' },
-    { t:'RITM',    sh:0,    book:0,      name:'Rithm Capital',             type:'USD' },
-    { t:'GRID',    sh:0,    book:0,      name:'GRID ETF',                  type:'USD' },
-    { t:'XNDU',    sh:0,    book:0,      name:'Xanadu Quantum',            type:'USD' },
-    { t:'VST',     sh:0,    book:0,      name:'Vistra Corp (nuclear/AI)',  type:'USD' },
-    { t:'ETN',     sh:0,    book:0,      name:'Eaton Corp (power mgmt)',   type:'USD' },
-    { t:'AGX',     sh:0,    book:0,      name:'Argan Inc (power plant)',   type:'USD' },
-    { t:'POET',    sh:0,    book:0,      name:'POET Technologies (photon)',type:'USD' },
-    { t:'IONQ',    sh:0,    book:0,      name:'IonQ (quantum computing)',  type:'USD' },
-    // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
   ],
 
   other: [
-    { t:'AMZN.TO', sh:90,   book:2617,   name:'Amazon CDR (Earl RSP)',     type:'CAD' },
-    { t:'PLAN.V',  sh:50266, book:13823, name:'Progressive Planet (50K pending TFSA)', type:'CAD' },
-    { t:'MA',      sh:0,    book:0,      name:'Mastercard (watching)',      type:'USD' },
-    { t:'TOI.NE',  sh:0,    book:0,      name:'Topicus.com',               type:'CAD' },
-    { t:'SMCI',    sh:0,    book:0,      name:'Super Micro Computer',      type:'USD' },
-    { t:'KKR',     sh:0,    book:0,      name:'KKR & Co',                  type:'USD' },
+    { t:'AMZN.TO', sh:90,   book:2617,   name:'Amazon CDR (Earl RSP)',       type:'CAD' },
+    { t:'PLAN.V',  sh:50266,book:13823,  name:'Progressive Planet (incl 50K pending)', type:'CAD' },
+    { t:'V',       sh:128,  book:47409,  name:'Visa Inc (75+53)',            type:'USD' },
+    { t:'PRIM',    sh:151,  book:42318,  name:'Primoris Services',           type:'USD' },
     // spare slots
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
-    { t:'',        sh:0,    book:0,      name:'spare slot',                type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+  ],
+
+  // ── WATCHLIST — NOT OWNED ───────────────────────────────────
+
+  watch: [
+    { t:'RITM',    sh:0,    book:0,      name:'Rithm Capital',               type:'USD' },
+    { t:'GRID',    sh:0,    book:0,      name:'GRID ETF',                    type:'USD' },
+    { t:'XNDU',    sh:0,    book:0,      name:'Xanadu Quantum',              type:'USD' },
+    { t:'VST',     sh:0,    book:0,      name:'Vistra Corp (nuclear/AI)',    type:'USD' },
+    { t:'ETN',     sh:0,    book:0,      name:'Eaton Corp (power mgmt)',     type:'USD' },
+    { t:'AGX',     sh:0,    book:0,      name:'Argan Inc (power plant)',     type:'USD' },
+    { t:'POET',    sh:0,    book:0,      name:'POET Technologies',           type:'USD' },
+    { t:'IONQ',    sh:0,    book:0,      name:'IonQ (quantum computing)',    type:'USD' },
+    { t:'HMAX.TO', sh:0,    book:0,      name:'Hamilton Can Financials',     type:'CAD' },
+    { t:'TOI.NE',  sh:0,    book:0,      name:'Topicus.com',                 type:'CAD' },
+    { t:'SMCI',    sh:0,    book:0,      name:'Super Micro Computer',        type:'USD' },
+    { t:'KKR',     sh:0,    book:0,      name:'KKR & Co',                   type:'USD' },
+    { t:'MA',      sh:0,    book:0,      name:'Mastercard',                  type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
+  ],
+
+  ewatch: [
+    { t:'WCP.TO',  sh:0,    book:0,      name:'Whitecap Resources',          type:'CAD' },
+    { t:'TVE.TO',  sh:0,    book:0,      name:'Tamarack Valley Energy',      type:'CAD' },
+    { t:'PPL.TO',  sh:0,    book:0,      name:'Pembina Pipeline',            type:'CAD' },
+    { t:'EXE',     sh:0,    book:0,      name:'Expand Energy (nat gas)',     type:'USD' },
+    // spare slots
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
+    { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
   ],
 
 };
@@ -178,12 +209,16 @@ const SECTIONS = {
 // ENGINE — DO NOT EDIT BELOW THIS LINE
 // ════════════════════════════════════════════════════════════
 
+// Which sections are watchlist (affects visual style)
+const WATCH_SECTIONS = new Set(['watch', 'ewatch']);
+// Which sections count toward portfolio totals
+const OWNED_SECTIONS = new Set(['infra', 'mem', 'inc', 'energy', 'other']);
+
 let FX = 1.3988;
-// MU.TO CDR confirmed ratio from screenshots: $47.88 CAD when MU = $1,083.96 USD
-const MU_CDR_RATIO = 47.88 / 1083.96; // = 0.04417
+const MU_CDR_RATIO = 47.88 / 1083.96;
 
 const LOGS = [];
-const lg = m => { LOGS.push(m); };
+const lg = m => LOGS.push(m);
 const toggleDebug = () => {
   const el = document.getElementById('debugOut');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
@@ -201,25 +236,22 @@ async function getQ(ticker) {
   const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
   for (let i = 0; i < PROXIES.length; i++) {
     try {
-      lg(`[${ticker}] proxy ${i+1}`);
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), 9000);
       const r = await fetch(PROXIES[i](base), { signal: ctrl.signal });
       clearTimeout(tid);
-      if (!r.ok) { lg(`[${ticker}] HTTP ${r.status}`); continue; }
+      if (!r.ok) continue;
       const txt = await r.text();
       let parsed;
-      try {
-        const outer = JSON.parse(txt);
-        parsed = outer.contents ? JSON.parse(outer.contents) : outer;
-      } catch { lg(`[${ticker}] parse err`); continue; }
+      try { const o = JSON.parse(txt); parsed = o.contents ? JSON.parse(o.contents) : o; }
+      catch { continue; }
       const meta = parsed?.chart?.result?.[0]?.meta;
-      if (!meta?.regularMarketPrice) { lg(`[${ticker}] no price`); continue; }
+      if (!meta?.regularMarketPrice) continue;
       const p = meta.regularMarketPrice;
       const prev = meta.chartPreviousClose || p;
-      lg(`[${ticker}] $${p}`);
+      lg(`✅ ${ticker} $${p}`);
       return { price: p, prev, change: p - prev, pct: ((p - prev) / prev) * 100 };
-    } catch(e) { lg(`[${ticker}] ${e.message}`); }
+    } catch(e) { lg(`❌ ${ticker} proxy${i+1}: ${e.message}`); }
   }
   return null;
 }
@@ -228,37 +260,38 @@ function calcMV(pos, q) {
   if (!q || pos.sh === 0) return { mvCAD: 0, glCAD: 0, dayCAD: 0 };
   let mvCAD = 0, dayCAD = 0;
   if (pos.type === 'MU_CDR') {
-    // MU.TO CDR: price in CAD = MU_USD × confirmed ratio
-    const cdrCAD = q.price * MU_CDR_RATIO;
-    mvCAD = pos.sh * cdrCAD;
-    dayCAD = pos.sh * q.change * MU_CDR_RATIO;
+    mvCAD = pos.sh * q.price * MU_CDR_RATIO * FX;
+    dayCAD = pos.sh * q.change * MU_CDR_RATIO * FX;
   } else if (pos.type === 'CAD') {
     mvCAD = pos.sh * q.price;
     dayCAD = pos.sh * q.change;
-  } else { // USD
+  } else {
     mvCAD = pos.sh * q.price * FX;
     dayCAD = pos.sh * q.change * FX;
   }
   return { mvCAD, glCAD: mvCAD - pos.book, dayCAD };
 }
 
-function makeRow(pos, q) {
+function makeRow(pos, q, isWatch) {
   if (!pos.t) {
-    return `<div class="row empty"><div><div class="ticker" style="color:#1e2d4a">— spare slot —</div><div class="rname" style="color:#1e2d4a">Replace t:'' with ticker symbol</div></div><div class="right"><div class="price neu">—</div></div></div>`;
+    return `<div class="row ${isWatch ? 'watch' : 'owned'} empty"><div><div class="ticker" style="opacity:.3">— spare —</div></div><div class="right"><div class="price neu">—</div></div></div>`;
   }
+
   const { mvCAD, glCAD } = calcMV(pos, q);
   const glPct = pos.book > 0 ? (glCAD / pos.book) * 100 : 0;
+  const owned = pos.sh > 0;
+  const rowClass = `row ${isWatch || !owned ? 'watch' : 'owned'}`;
+
   let pStr = '<span class="spin"></span>';
-  let cStr = '';
-  let pCls = 'neu';
+  let cStr = '', pCls = 'neu';
 
   if (q === false) {
-    pStr = '<span class="err">failed — tap Refresh</span>';
+    pStr = '<span class="err">retry</span>';
   } else if (q) {
     pCls = q.pct >= 0 ? 'pos' : 'neg';
     if (pos.type === 'MU_CDR') {
-      const cdrCAD = (q.price * MU_CDR_RATIO).toFixed(2);
-      pStr = `$${cdrCAD} CAD <span style="color:#475569;font-size:9px">MU $${q.price.toFixed(0)}</span>`;
+      const cdrCAD = (q.price * MU_CDR_RATIO * FX).toFixed(2);
+      pStr = `$${cdrCAD} <span style="color:#4a6070;font-size:10px">MU $${q.price.toFixed(0)}</span>`;
     } else if (pos.type === 'CAD') {
       pStr = `$${q.price.toFixed(2)} CAD`;
     } else {
@@ -267,15 +300,16 @@ function makeRow(pos, q) {
     cStr = `<span class="${pCls}">${q.pct >= 0 ? '+' : ''}${q.pct.toFixed(2)}%</span>`;
   }
 
-  const shStr = pos.sh > 0
+  const shStr = owned
     ? `${pos.sh.toLocaleString()} sh · book $${Math.round(pos.book).toLocaleString()}`
     : 'watch only';
+
   const mvStr = mvCAD > 0 ? `MV $${Math.round(mvCAD).toLocaleString()} CAD` : '';
-  const glStr = pos.sh > 0 && q && q !== false
+  const glStr = owned && q && q !== false
     ? `<span class="${glCAD >= 0 ? 'pos' : 'neg'}">${glCAD >= 0 ? '+' : '-'}$${Math.abs(Math.round(glCAD)).toLocaleString()} (${glPct >= 0 ? '+' : ''}${glPct.toFixed(0)}%)</span>`
     : '';
 
-  return `<div class="row">
+  return `<div class="${rowClass}">
     <div>
       <div class="ticker">${pos.t}</div>
       <div class="rname">${pos.name}</div>
@@ -296,18 +330,21 @@ async function fetchAll() {
   btn.disabled = true; btn.textContent = '⟳ Loading...';
   document.getElementById('status').innerHTML = '<span class="spin"></span>Fetching prices...';
 
+  // Show spinners
   for (const [sec, positions] of Object.entries(SECTIONS)) {
-    document.getElementById('g-'+sec).innerHTML = positions.map(p => makeRow(p, null)).join('');
+    const isWatch = WATCH_SECTIONS.has(sec);
+    document.getElementById('g-'+sec).innerHTML = positions.map(p => makeRow(p, null, isWatch)).join('');
   }
 
+  // FX rate
   const fxQ = await getQ('USDCAD=X');
   if (fxQ) FX = fxQ.price;
 
-  // MU.TO CDR — fetch MU (USD) for the calculation
+  // Collect unique tickers — MU_CDR fetches MU not MU.TO
   const allPos = Object.values(SECTIONS).flat().filter(p => p.t !== '');
-  // For MU_CDR type, we need to fetch MU not MU.TO
   const tickers = [...new Set(allPos.map(p => p.type === 'MU_CDR' ? 'MU' : p.t))];
 
+  // Fetch all in parallel
   const quoteMap = {};
   await Promise.all(tickers.map(async t => {
     quoteMap[t] = (await getQ(t)) ?? false;
@@ -316,18 +353,21 @@ async function fetchAll() {
   let tMV = 0, tBook = 0, tDay = 0;
 
   for (const [sec, positions] of Object.entries(SECTIONS)) {
+    const isWatch = WATCH_SECTIONS.has(sec);
+    const owned = OWNED_SECTIONS.has(sec);
     const html = positions.map(pos => {
-      const lookupKey = pos.type === 'MU_CDR' ? 'MU' : pos.t;
-      const q = pos.t ? quoteMap[lookupKey] : null;
-      if (pos.sh > 0 && q && q !== false) {
+      const key = pos.type === 'MU_CDR' ? 'MU' : pos.t;
+      const q = pos.t ? quoteMap[key] : null;
+      if (owned && pos.sh > 0 && q && q !== false) {
         const { mvCAD, dayCAD } = calcMV(pos, q);
         tMV += mvCAD; tBook += pos.book; tDay += dayCAD;
       }
-      return makeRow(pos, q);
+      return makeRow(pos, q, isWatch);
     });
     document.getElementById('g-'+sec).innerHTML = html.join('');
   }
 
+  // Summary
   const gl = tMV - tBook;
   const glP = tBook > 0 ? (gl/tBook)*100 : 0;
 
