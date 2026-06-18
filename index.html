@@ -11,8 +11,17 @@
 body { font-family: 'Inter', sans-serif; background: #080c14; color: #c8d8ea; padding: 14px 16px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
 /* Header */
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
 h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; margin-bottom: 3px; }
-.sub { font-size: 12px; color: #6a85a0; margin-bottom: 14px; }
+.sub { font-size: 12px; color: #6a85a0; }
+
+/* Clock */
+.clock-box { background: #0c1828; border: 1px solid #1a3050; border-radius: 8px; padding: 8px 14px; text-align: right; }
+.clock-time { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: #7ab8f5; letter-spacing: 0.5px; }
+.clock-date { font-size: 11px; color: #5a7898; margin-top: 2px; }
+.clock-row { display: flex; gap: 14px; margin-top: 4px; }
+.clock-sub { font-size: 10px; color: #4a6070; }
+.clock-sub b { color: #6a85a0; }
 
 /* Buttons */
 .btn { background: #0f1e30; color: #7ab8f5; border: 1px solid #1e4070; padding: 8px 18px; border-radius: 7px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 14px; margin-right: 8px; transition: border-color 0.15s; }
@@ -26,8 +35,16 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
 .card .val { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
 .card .sub2 { font-size: 12px; margin-top: 4px; font-weight: 600; }
 
-/* Section headers — owned vs watchlist visually distinct */
-.section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; margin: 16px 0 6px 2px; display: flex; align-items: center; gap: 8px; }
+/* Two-column main layout */
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+.col-header { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; }
+.col-header.owned { background: rgba(122,184,245,0.1); color: #7ab8f5; border: 1px solid #1a3050; }
+.col-header.watch { background: rgba(138,128,96,0.1); color: #b0a070; border: 1px solid #2a2510; }
+
+/* Section headers */
+.section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; margin: 14px 0 6px 2px; display: flex; align-items: center; gap: 8px; }
 .section::after { content: ''; flex: 1; height: 1px; }
 .section.owned { color: #7ab8f5; }
 .section.owned::after { background: #1a3050; }
@@ -35,51 +52,58 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
 .section.watching::after { background: #251e10; }
 
 /* Stock rows — OWNED */
-.row { border-radius: 8px; padding: 10px 14px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-bottom: 4px; transition: border-color 0.12s; }
+.row { border-radius: 8px; padding: 9px 13px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-bottom: 4px; transition: border-color 0.12s; }
 .row.owned { background: #0c1828; border: 1px solid #1a3050; }
 .row.owned:hover { border-color: #2a5080; }
-
-/* Stock rows — WATCH ONLY */
 .row.watch { background: #0e0f0a; border: 1px solid #1e1e10; }
 .row.watch:hover { border-color: #2e2e18; }
 .row.watch .ticker { color: #9aaa88; }
 .row.watch .rname { color: #5a6050; }
 .row.watch .price { color: #9aaa88; }
 .row.watch .chg { opacity: 0.8; }
-
-/* Empty slots */
 .row.empty { opacity: 0.1; }
 
 /* Left side */
-.ticker { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #e0ecf8; letter-spacing: 0.02em; line-height: 1; }
-.rname { font-size: 12px; color: #6a85a0; margin-top: 4px; font-weight: 400; }
-.rmeta { font-size: 11px; color: #4a6070; margin-top: 3px; font-weight: 400; }
+.ticker { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: #e0ecf8; letter-spacing: 0.02em; line-height: 1; }
+.rname { font-size: 11px; color: #6a85a0; margin-top: 3px; font-weight: 400; }
+.rmeta { font-size: 10px; color: #4a6070; margin-top: 2px; font-weight: 400; }
 
 /* Right side */
-.right { text-align: right; min-width: 140px; }
-.price { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; letter-spacing: -0.2px; line-height: 1; }
-.chg { font-size: 12px; font-weight: 600; margin-top: 3px; }
-.mv { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #7a9ab8; margin-top: 5px; font-weight: 500; }
-.gl { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; margin-top: 2px; }
+.right { text-align: right; min-width: 125px; }
+.price { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: -0.2px; line-height: 1; }
+.chg { font-size: 11px; font-weight: 600; margin-top: 3px; }
+.mv { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #7a9ab8; margin-top: 5px; font-weight: 500; }
+.gl { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; margin-top: 2px; }
 
-/* Colours */
 .pos { color: #28dba8; }
 .neg { color: #f87878; }
 .neu { color: #5a7898; }
 
-/* Status */
-.status { text-align: center; font-size: 11px; color: #3a5060; margin-top: 12px; }
+.status { text-align: center; font-size: 11px; color: #3a5060; margin-top: 16px; }
 .err { color: #f87878; font-size: 11px; }
 .note { background: #0c1828; border: 1px solid #1a3050; border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 11px; color: #5a7898; line-height: 1.7; }
-#debugOut { display:none; margin-top:10px; background:#0c1828; border:1px solid #1a3050; border-radius:8px; padding:12px; font-size:10px; color:#4a6070; white-space:pre-wrap; font-family:'JetBrains Mono',monospace; }
+#debugOut { display:none; margin-top:10px; background:#0c1828; border:1px solid #1a3050; border-radius:8px; padding:12px; font-size:10px; color:#4a6070; white-space:pre-wrap; font-family:'JetBrains Mono',monospace; max-height: 300px; overflow-y: auto; }
 .spin { display:inline-block; width:11px; height:11px; border:2px solid #1a3050; border-top-color:#7ab8f5; border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; margin-right:5px; }
 @keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<h1>Jenson Portfolio</h1>
-<div class="sub">Live prices · CAD base · 15-min delayed · Auto-refresh every 5 min</div>
+<div class="header-row">
+  <div>
+    <h1>Jenson Portfolio</h1>
+    <div class="sub">Live prices · CAD base · Auto-refresh every 5 min</div>
+  </div>
+  <div class="clock-box">
+    <div class="clock-time" id="clockTime">--:--:--</div>
+    <div class="clock-date" id="clockDate">Loading...</div>
+    <div class="clock-row">
+      <span class="clock-sub">Vegreville: <b id="clockMDT">--</b></span>
+      <span class="clock-sub">Seoul: <b id="clockKST">--</b></span>
+    </div>
+  </div>
+</div>
+
 <button class="btn" onclick="fetchAll()" id="btn">↻ Refresh</button>
 <button class="btn" onclick="toggleDebug()" style="background:#0a0c10;color:#4a6070;border-color:#1a2030;font-size:12px;">Debug</button>
 
@@ -89,24 +113,28 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
   <div class="card"><div class="label">Day Change</div><div class="val neu" id="sDay">—</div></div>
 </div>
 
-<!-- OWNED POSITIONS -->
-<div class="section owned">⚡ AI Infrastructure</div><div id="g-infra"></div>
-<div class="section owned">💾 Memory / HBM</div><div id="g-mem"></div>
-<div class="section owned">💰 YieldMax Income</div><div id="g-inc"></div>
-<div class="section owned">🛢 Energy</div><div id="g-energy"></div>
-<div class="section owned">📊 Other Positions</div><div id="g-other"></div>
+<div class="main-grid">
+  <!-- LEFT COLUMN: OWNED -->
+  <div>
+    <div class="col-header owned">⚡ I OWN THESE</div>
+    <div class="section owned">⚡ AI Infrastructure</div><div id="g-infra"></div>
+    <div class="section owned">💾 Memory / HBM</div><div id="g-mem"></div>
+    <div class="section owned">💰 YieldMax Income</div><div id="g-inc"></div>
+    <div class="section owned">🛢 Energy</div><div id="g-energy"></div>
+    <div class="section owned">📊 Other Positions</div><div id="g-other"></div>
+  </div>
 
-<!-- WATCHLIST SEPARATOR -->
-<div style="margin:20px 0 8px;padding:8px 14px;background:#0e0f0a;border:1px solid #1e1e10;border-radius:8px;font-size:11px;color:#6a6040;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">
-  👁 Watchlist — not currently owned
+  <!-- RIGHT COLUMN: WATCHLIST -->
+  <div>
+    <div class="col-header watch">👁 WATCHING ONLY</div>
+    <div class="section watching">🔬 Tech / AI Watchlist</div><div id="g-watch"></div>
+    <div class="section watching">🛢 Energy Watchlist</div><div id="g-ewatch"></div>
+  </div>
 </div>
-
-<div class="section watching">🔬 Tech / AI Watchlist</div><div id="g-watch"></div>
-<div class="section watching">🛢 Energy Watchlist</div><div id="g-ewatch"></div>
 
 <div class="status" id="status">Tap Refresh to load prices</div>
 <div id="debugOut"></div>
-<div class="note"><strong style="color:#7a9ab8">Blue rows</strong> = positions you own. <strong style="color:#8a8060">Olive rows</strong> = watchlist only. To add a ticker tell Claude — he updates the file in seconds.</div>
+<div class="note"><strong style="color:#7a9ab8">Left column</strong> = positions you own. <strong style="color:#8a8060">Right column</strong> = watchlist only. To add/change a ticker tell Claude — he updates the file in seconds.</div>
 
 <script>
 // ════════════════════════════════════════════════════════════
@@ -114,14 +142,14 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
 // ════════════════════════════════════════════════════════════
 // FORMAT: { t, sh, book, name, type }
 //   t:    ticker symbol ('' = spare slot)
-//   sh:   shares owned (0 = watch only — goes to watchlist)
+//   sh:   shares owned (0 = watch only — goes to right column)
 //   book: book cost CAD (0 if watch only)
-//   type: 'USD' | 'CAD' | 'MU_CDR'
+//   type: 'USD' | 'CAD' | 'MU_CDR' | 'NVDA_CDR'
 // ════════════════════════════════════════════════════════════
 
 const SECTIONS = {
 
-  // ── OWNED POSITIONS ────────────────────────────────────────
+  // ── OWNED POSITIONS (left column) ──────────────────────────
 
   infra: [
     { t:'STRL',    sh:89,   book:61814,  name:'Sterling Infrastructure',    type:'USD' },
@@ -132,15 +160,13 @@ const SECTIONS = {
     { t:'LRCX',    sh:55,   book:16089,  name:'Lam Research',                type:'USD' },
     { t:'COHR',    sh:11,   book:4347,   name:'Coherent Corp',               type:'USD' },
     { t:'APH',     sh:25,   book:4897,   name:'Amphenol Corp (RESP)',        type:'USD' },
-    // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
   mem: [
     { t:'MU.TO',   sh:890,  book:33454,  name:'Micron CDR (MU.TO)',          type:'MU_CDR' },
-    { t:'DRAM',    sh:964,  book:87308,  name:'Roundhill Memory ETF',        type:'USD' },
-    // spare slots
+    { t:'DRAM',    sh:1154, book:106371, name:'Roundhill Memory ETF',        type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
@@ -149,14 +175,12 @@ const SECTIONS = {
     { t:'NVDY',    sh:3120, book:60296,  name:'YieldMax NVDA ETF',           type:'USD' },
     { t:'FBY',     sh:1530, book:32266,  name:'YieldMax META ETF',           type:'USD' },
     { t:'NFLY',    sh:230,  book:5214,   name:'YieldMax NFLX ETF',           type:'USD' },
-    // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
   energy: [
     { t:'PEI.V',   sh:194000, book:18109, name:'Prospera Energy (all accts)', type:'CAD' },
-    // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
   ],
 
@@ -164,14 +188,13 @@ const SECTIONS = {
     { t:'AMZN.NE', sh:90,   book:2617,   name:'Amazon CDR (Earl RSP)',       type:'CAD' },
     { t:'PLAN.V',  sh:50266,book:13823,  name:'Progressive Planet (incl 50K pending)', type:'CAD' },
     { t:'V',       sh:128,  book:47409,  name:'Visa Inc (75+53)',            type:'USD' },
-    { t:'PRIM',    sh:151,  book:42318,  name:'Primoris Services',           type:'USD' },
-    // spare slots
+    { t:'PRIM',    sh:15,   book:4212,   name:'Primoris Services (RESP only)', type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
   ],
 
-  // ── WATCHLIST — NOT OWNED ───────────────────────────────────
+  // ── WATCHLIST — NOT OWNED (right column) ───────────────────
 
   watch: [
     { t:'RITM',    sh:0,    book:0,      name:'Rithm Capital',               type:'USD' },
@@ -185,9 +208,8 @@ const SECTIONS = {
     { t:'HMAX.TO', sh:0,    book:0,      name:'Hamilton Can Financials',     type:'CAD' },
     { t:'TOI.NE',  sh:0,    book:0,      name:'Topicus.com',                 type:'CAD' },
     { t:'SMCI',    sh:0,    book:0,      name:'Super Micro Computer',        type:'USD' },
-    { t:'KKR',     sh:0,    book:0,      name:'KKR & Co',                   type:'USD' },
+    { t:'KKR',     sh:0,    book:0,      name:'KKR & Co',                    type:'USD' },
     { t:'MA',      sh:0,    book:0,      name:'Mastercard',                  type:'USD' },
-    // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'USD' },
@@ -198,7 +220,6 @@ const SECTIONS = {
     { t:'TVE.TO',  sh:0,    book:0,      name:'Tamarack Valley Energy',      type:'CAD' },
     { t:'PPL.TO',  sh:0,    book:0,      name:'Pembina Pipeline',            type:'CAD' },
     { t:'EXE',     sh:0,    book:0,      name:'Expand Energy (nat gas)',     type:'USD' },
-    // spare slots
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
     { t:'',        sh:0,    book:0,      name:'spare slot',                  type:'CAD' },
   ],
@@ -209,14 +230,12 @@ const SECTIONS = {
 // ENGINE — DO NOT EDIT BELOW THIS LINE
 // ════════════════════════════════════════════════════════════
 
-// Which sections are watchlist (affects visual style)
 const WATCH_SECTIONS = new Set(['watch', 'ewatch']);
-// Which sections count toward portfolio totals
 const OWNED_SECTIONS = new Set(['infra', 'mem', 'inc', 'energy', 'other']);
 
 let FX = 1.3988;
-const MU_CDR_RATIO = 47.88 / 1083.96;   // MU.TO CAD / MU USD — no FX needed (CAD hedged)
-const NVDA_CDR_RATIO = 47.62 / 212.00;  // NVDA.TO CAD / NVDA USD — confirmed June 15
+const MU_CDR_RATIO = 47.88 / 1083.96;
+const NVDA_CDR_RATIO = 47.62 / 212.00;
 
 const LOGS = [];
 const lg = m => LOGS.push(m);
@@ -226,6 +245,26 @@ const toggleDebug = () => {
   el.textContent = LOGS.join('\n');
 };
 
+// ── LIVE CLOCK ──────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+
+  // Vegreville = Mountain Time (MDT/MST)
+  const mdtStr = now.toLocaleTimeString('en-US', { timeZone: 'America/Edmonton', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const mdtDate = now.toLocaleDateString('en-US', { timeZone: 'America/Edmonton', weekday: 'long', month: 'short', day: 'numeric' });
+
+  // Seoul time
+  const kstStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const kstDate = now.toLocaleDateString('en-US', { timeZone: 'Asia/Seoul', weekday: 'short', month: 'short', day: 'numeric' });
+
+  document.getElementById('clockTime').textContent = mdtStr;
+  document.getElementById('clockDate').textContent = mdtDate;
+  document.getElementById('clockMDT').textContent = mdtStr;
+  document.getElementById('clockKST').textContent = `${kstStr} (${kstDate})`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
 const PROXIES = [
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
@@ -234,12 +273,17 @@ const PROXIES = [
 ];
 
 async function getQ(ticker) {
-  const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+  const cacheBust = Date.now();
+  const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d&_=${cacheBust}`;
   for (let i = 0; i < PROXIES.length; i++) {
     try {
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), 9000);
-      const r = await fetch(PROXIES[i](base), { signal: ctrl.signal });
+      const r = await fetch(PROXIES[i](base), {
+        signal: ctrl.signal,
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+      });
       clearTimeout(tid);
       if (!r.ok) continue;
       const txt = await r.text();
@@ -250,7 +294,8 @@ async function getQ(ticker) {
       if (!meta?.regularMarketPrice) continue;
       const p = meta.regularMarketPrice;
       const prev = meta.chartPreviousClose || p;
-      lg(`✅ ${ticker} $${p}`);
+      const fetchTime = new Date().toLocaleTimeString();
+      lg(`✅ ${ticker} $${p} @ ${fetchTime}`);
       return { price: p, prev, change: p - prev, pct: ((p - prev) / prev) * 100 };
     } catch(e) { lg(`❌ ${ticker} proxy${i+1}: ${e.message}`); }
   }
@@ -295,7 +340,7 @@ function makeRow(pos, q, isWatch) {
     pCls = q.pct >= 0 ? 'pos' : 'neg';
     if (pos.type === 'MU_CDR') {
       const cdrCAD = (q.price * MU_CDR_RATIO).toFixed(2);
-      pStr = `$${cdrCAD} CAD <span style="color:#4a6070;font-size:10px">MU $${q.price.toFixed(0)}</span>`;
+      pStr = `$${cdrCAD} <span style="color:#4a6070;font-size:10px">MU $${q.price.toFixed(0)}</span>`;
     } else if (pos.type === 'NVDA_CDR') {
       const cdrCAD = (q.price * NVDA_CDR_RATIO).toFixed(2);
       pStr = `$${cdrCAD} CAD <span style="color:#4a6070;font-size:10px">NVDA $${q.price.toFixed(0)}</span>`;
@@ -337,17 +382,14 @@ async function fetchAll() {
   btn.disabled = true; btn.textContent = '⟳ Loading...';
   document.getElementById('status').innerHTML = '<span class="spin"></span>Fetching prices...';
 
-  // Show spinners
   for (const [sec, positions] of Object.entries(SECTIONS)) {
     const isWatch = WATCH_SECTIONS.has(sec);
     document.getElementById('g-'+sec).innerHTML = positions.map(p => makeRow(p, null, isWatch)).join('');
   }
 
-  // FX rate
   const fxQ = await getQ('USDCAD=X');
   if (fxQ) FX = fxQ.price;
 
-  // Collect unique tickers — MU_CDR fetches MU not MU.TO
   const allPos = Object.values(SECTIONS).flat().filter(p => p.t !== '');
   const tickers = [...new Set(allPos.map(p => {
     if (p.type === 'MU_CDR') return 'MU';
@@ -355,7 +397,6 @@ async function fetchAll() {
     return p.t;
   }))];
 
-  // Fetch all in parallel
   const quoteMap = {};
   await Promise.all(tickers.map(async t => {
     quoteMap[t] = (await getQ(t)) ?? false;
@@ -378,7 +419,6 @@ async function fetchAll() {
     document.getElementById('g-'+sec).innerHTML = html.join('');
   }
 
-  // Summary
   const gl = tMV - tBook;
   const glP = tBook > 0 ? (gl/tBook)*100 : 0;
 
