@@ -300,10 +300,14 @@ async function getQ(ticker) {
       const meta = parsed?.chart?.result?.[0]?.meta;
       if (!meta?.regularMarketPrice) continue;
       const p = meta.regularMarketPrice;
-      const prev = meta.chartPreviousClose || p;
+       const prev = meta.regularMarketPreviousClose || meta.chartPreviousClose || p;
+      const marketState = meta.marketState || 'CLOSED';
+      const change = (marketState === 'CLOSED' && p === prev) ? 0 : p - prev;
+      const pct = prev > 0 ? (change / prev) * 100 : 0;
+    
       const fetchTime = new Date().toLocaleTimeString();
       lg(`✅ ${ticker} $${p} @ ${fetchTime}`);
-      return { price: p, prev, change: p - prev, pct: ((p - prev) / prev) * 100 };
+      return { price: p, prev, change, pct };
     } catch(e) { lg(`❌ ${ticker} proxy${i+1}: ${e.message}`); }
   }
   return null;
