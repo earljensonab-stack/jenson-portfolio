@@ -5,10 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="c3LobrFmvG-qjLRm9UaanVOV-8FgCMI_o8H5M2QJcG0" />
 <meta name="robots" content="index, follow">
-<meta name="description" content="Jenson Portfolio Tracker — Live Canadian stock portfolio tracking AI infrastructure, HBM memory, YieldMax income and energy positions across five registered accounts.">
+<meta name="description" content="Jenson Portfolio Tracker — Live Canadian stock portfolio tracking AI infrastructure, HBM memory, YieldMax income and energy positions across five registered accounts including TFSA, RRSP, Spousal RSP and RESP.">
 <meta property="og:title" content="Jenson Portfolio Tracker">
-<meta property="og:description" content="Live portfolio tracker covering STRL, CLS.TO, VRT, NVDA, DRAM, MU, NVDY, FBY and more across TFSA, RRSP and RESP accounts.">
-<title>Jenson Portfolio</title>
+<meta property="og:description" content="Live portfolio tracker covering STRL, CLS.TO, VRT, NVDA, DRAM, MU, NVDY, FBY and more.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Jenson Portfolio Tracker",
+  "description": "Live Canadian investment portfolio tracker for registered accounts including TFSA, RRSP, Spousal RSP and RESP. Tracks AI infrastructure, HBM memory supercycle, YieldMax income ETFs and energy positions with live prices in Canadian dollars.",
+  "url": "https://earljensonab-stack.github.io/jenson-portfolio/",
+  "applicationCategory": "FinanceApplication",
+  "keywords": "portfolio tracker, Canadian stocks, TFSA, RRSP, AI infrastructure, HBM memory, DRAM ETF, Micron, SK Hynix, YieldMax, live stock prices"
+}
+</script>
+<title>Jenson Portfolio Tracker — Live Canadian Stock Portfolio</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
@@ -95,17 +106,19 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
 <body>
 
 <noscript>
-<h1>Jenson Portfolio Tracker</h1>
-<p>Live investment portfolio tracker for registered Canadian accounts including TFSA, RRSP, Spousal RSP and RESP. Tracks AI infrastructure, HBM memory, YieldMax income ETFs and energy positions with live prices in CAD.</p>
+<h1>Jenson Portfolio Tracker — Live Canadian Stock Portfolio</h1>
+<p>A live investment portfolio tracker for registered Canadian accounts including TFSA, RRSP, Spousal RSP and RESP. Tracks positions across AI infrastructure, HBM memory supercycle, YieldMax income ETFs and energy sectors with live prices in Canadian dollars.</p>
 <h2>AI Infrastructure Holdings</h2>
-<p>Sterling Infrastructure (STRL), Celestica (CLS.TO), Vertiv Holdings (VRT), Nvidia CDR (NVDA), Dell Technologies CDR (DELL), Lam Research (LRCX), Coherent Corp (COHR), Amphenol (APH).</p>
-<h2>Memory / HBM Holdings</h2>
-<p>Micron Technology CDR (MU.TO), Roundhill Memory ETF (DRAM) — pure-play HBM supercycle and SK Hynix ADR re-rating thesis.</p>
+<p>Sterling Infrastructure (STRL) — data centre construction and site preparation. Celestica (CLS.TO) — AI server manufacturing for hyperscalers. Vertiv Holdings (VRT) — data centre power and cooling infrastructure. Nvidia CDR (NVDA) — Canadian Depositary Receipt tracking NVDA. Dell Technologies CDR (DELL) — AI server supply chain. Lam Research (LRCX) — semiconductor etch and deposition equipment. Coherent Corp (COHR) — photonics and co-packaged optics. Amphenol (APH) — AI connector infrastructure.</p>
+<h2>Memory / HBM Supercycle Holdings</h2>
+<p>Micron Technology CDR (MU.TO) — Canadian Depositary Receipt tracking Micron Technology, the world's largest US-based HBM4 memory producer. Roundhill Memory ETF (DRAM) — pure-play HBM supercycle ETF holding SK Hynix 29.9%, Micron 23.78% and Samsung 20%. SK Hynix ADR listing on Nasdaq July 10 2026 is a key re-rating catalyst.</p>
 <h2>YieldMax Income Holdings</h2>
-<p>YieldMax NVDA ETF (NVDY), YieldMax META ETF (FBY), YieldMax NFLX ETF (NFLY) — monthly income generation across registered accounts.</p>
-<h2>Other Positions</h2>
-<p>Amazon CDR (AMZN.NE), Progressive Planet Solutions (PLAN.V), Visa Inc (V), Primoris Services (PRIM), Prospera Energy (PEI.V).</p>
-<p>JavaScript required for live price updates via Yahoo Finance API.</p>
+<p>YieldMax NVDA ETF (NVDY) — monthly income via covered calls on NVIDIA. YieldMax META ETF (FBY) — monthly income via covered calls on Meta Platforms. YieldMax NFLX ETF (NFLY) — monthly income via covered calls on Netflix.</p>
+<h2>Energy and Other Holdings</h2>
+<p>Prospera Energy (PEI.V) — Canadian junior oil producer. Progressive Planet Solutions (PLAN.V) — Canadian materials company. Visa Inc (V) — global payments network compounder.</p>
+<h2>Watchlist</h2>
+<p>Rithm Capital (RITM), GRID ETF, Xanadu Quantum (XNDU), Vistra Corp (VST), Eaton Corporation (ETN), Argan Inc (AGX), POET Technologies (POET), IonQ (IONQ), Hamilton Canadian Financials ETF (HMAX.TO), Topicus (TOI.NE), Super Micro Computer (SMCI), KKR and Co (KKR), Mastercard (MA), Deep Fission (FISN), Whitecap Resources (WCP.TO), Tamarack Valley Energy (TVE.TO), Pembina Pipeline (PPL.TO), Expand Energy (EXE).</p>
+<p>JavaScript required for live price updates via Yahoo Finance API with automatic refresh every 5 minutes.</p>
 </noscript>
 <div class="header-row">
   <div>
@@ -464,6 +477,46 @@ async function fetchAll() {
     `Updated ${now.toLocaleTimeString()} · FX ${FX.toFixed(4)} · ${failed > 0 ? failed+' failed — tap Refresh' : 'All prices loaded ✓'}`;
   document.getElementById('debugOut').textContent = LOGS.join('\n');
   btn.disabled = false; btn.textContent = '↻ Refresh';
+
+  // ── EXPORT PORTFOLIO DATA FOR CLAUDE ACCESS ──────────────
+  // Writes live data to window.portfolioSnapshot so Claude
+  // can read it via the Chrome extension
+  const snapshot = {
+    updated: now.toISOString(),
+    fx: FX,
+    summary: {
+      mv: Math.round(tMV),
+      gl: Math.round(gl),
+      glPct: parseFloat(glP.toFixed(1)),
+      dayChange: Math.round(tDay)
+    },
+    positions: []
+  };
+
+  for (const [sec, positions] of Object.entries(SECTIONS)) {
+    const owned = OWNED_SECTIONS.has(sec);
+    for (const pos of positions) {
+      if (!pos.t || pos.sh === 0) continue;
+      const key = pos.type === 'MU_CDR' ? 'MU' : pos.type === 'NVDA_CDR' ? 'NVDA' : pos.t;
+      const q = pos.t ? quoteMap[key] : null;
+      if (!q || q === false) continue;
+      const { mvCAD, glCAD } = calcMV(pos, q);
+      snapshot.positions.push({
+        ticker: pos.t,
+        name: pos.name,
+        shares: pos.sh,
+        book: pos.book,
+        price: parseFloat(q.price.toFixed(2)),
+        pct: parseFloat(q.pct.toFixed(2)),
+        mv: Math.round(mvCAD),
+        gl: Math.round(glCAD),
+        glPct: pos.book > 0 ? parseFloat(((glCAD/pos.book)*100).toFixed(1)) : 0,
+        section: sec
+      });
+    }
+  }
+  window.portfolioSnapshot = snapshot;
+  window.portfolioSnapshotJSON = JSON.stringify(snapshot, null, 2);
 }
 
 fetchAll();
