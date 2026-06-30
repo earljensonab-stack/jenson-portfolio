@@ -379,9 +379,16 @@ async function fetchAll() {
       const q = pos.t ? quoteMap[key] : null;
       if (!q||q===false) continue;
       const {mvCAD,glCAD} = calcMV(pos,q);
+      // Store the display price — CAD for CDRs, raw for others
+      let displayPrice, displayCurr;
+      if (pos.type==='MU_CDR')   { displayPrice=parseFloat((q.price*MU_CDR_RATIO).toFixed(2));   displayCurr='CAD'; }
+      else if (pos.type==='NVDA_CDR') { displayPrice=parseFloat((q.price*NVDA_CDR_RATIO).toFixed(2)); displayCurr='CAD'; }
+      else if (pos.type==='CAD') { displayPrice=parseFloat(q.price.toFixed(2)); displayCurr='CAD'; }
+      else { displayPrice=parseFloat(q.price.toFixed(2)); displayCurr='USD'; }
       snapshot.positions.push({
         ticker:pos.t, name:pos.name, shares:pos.sh, book:pos.book,
-        price:parseFloat(q.price.toFixed(2)), pct:parseFloat(q.pct.toFixed(2)),
+        price:displayPrice, curr:displayCurr,
+        pct:parseFloat(q.pct.toFixed(2)),
         mv:Math.round(mvCAD), gl:Math.round(glCAD),
         glPct:pos.book>0?parseFloat(((glCAD/pos.book)*100).toFixed(1)):0, section:sec
       });
@@ -424,7 +431,7 @@ function copyForClaude() {
     if (!bySection[sec]) continue;
     lines.push(`--- ${label} ---`);
     for (const p of bySection[sec]) {
-      lines.push(`${p.ticker}: ${p.shares.toLocaleString()}sh | $${p.price} (${p.pct>=0?'+':''}${p.pct}%) | MV $${p.mv.toLocaleString()} | G/L ${p.gl>=0?'+':''}$${p.gl.toLocaleString()} (${p.glPct>=0?'+':''}${p.glPct}%)`);
+      lines.push(`${p.ticker}: ${p.shares.toLocaleString()}sh | $${p.price} ${p.curr||''} (${p.pct>=0?'+':''}${p.pct}%) | MV $${p.mv.toLocaleString()} | G/L ${p.gl>=0?'+':''}$${p.gl.toLocaleString()} (${p.glPct>=0?'+':''}${p.glPct}%)`);
     }
     lines.push('');
   }
