@@ -136,6 +136,7 @@ h1 { font-size: 21px; font-weight: 700; color: #e8f0f8; letter-spacing: -0.4px; 
 </div>
 
 <button class="btn" onclick="fetchAll()" id="btn">↻ Refresh</button>
+<button class="btn" onclick="copyForClaude()" id="copyBtn" style="background:#0f2a1e;color:#4ade80;border-color:#1e5038;">📋 Copy for Claude</button>
 <button class="btn" onclick="toggleDebug()" style="background:#0a0c10;color:#4a6070;border-color:#1a2030;font-size:12px;">Debug</button>
 
 <div class="summary">
@@ -517,6 +518,121 @@ async function fetchAll() {
   }
   window.portfolioSnapshot = snapshot;
   window.portfolioSnapshotJSON = JSON.stringify(snapshot, null, 2);
+
+  // ── AUTO-PUBLISH TO GITHUB ──────────────────────────────
+  // Writes data.json to the repo so Claude can fetch it directly
+  // Requires GITHUB_TOKEN set below
+  publishToGitHub(snapshot);
+}
+
+// ── CONFIGURATION ───────────────────────────────────────────
+// To enable auto-publish:
+// 1. Go to github.com → Settings → Developer settings → Personal access tokens
+// 2. Generate a fine-grained token with Contents: Read & Write on this repo
+// 3. Paste it below between the quotes
+const GITHUB_TOKEN = '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';  // ← paste your token here
+const GITHUB_REPO  = 'earljensonab-stack/jenson-portfolio';
+const GITHUB_FILE  = 'data.json';
+const GITHUB_BRANCH = 'main';
+
+async function publishToGitHub(snapshot) {
+  if (!GITHUB_TOKEN) return; // skip if no token configured
+
+  try {
+    const content = JSON.stringify(snapshot, null, 2);
+    const encoded = btoa(unescape(encodeURIComponent(content)));
+    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+
+    // Get current file SHA (needed for updates)
+    let sha = null;
+    try {
+      const getResp = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (getResp.ok) {
+        const existing = await getResp.json();
+        sha = existing.sha;
+      }
+    } catch(e) { /* file doesn't exist yet — first write */ }
+
+    // Write updated data.json
+    const body = {
+      message: `Portfolio update ${new Date().toISOString()}`,
+      content: encoded,
+      branch: GITHUB_BRANCH,
+      ...(sha ? { sha } : {})
+    };
+
+    const putResp = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (putResp.ok) {
+      lg(`✅ GitHub data.json updated`);
+    } else {
+      lg(`❌ GitHub write failed: ${putResp.status}`);
+    }
+  } catch(e) {
+    lg(`❌ GitHub publish error: ${e.message}`);
+  }
+}
+
+function copyForClaude() {
+  const snap = window.portfolioSnapshot;
+  const btn = document.getElementById('copyBtn');
+  if (!snap) {
+    btn.textContent = '⚠ Wait for prices to load';
+    setTimeout(() => btn.textContent = '📋 Copy for Claude', 2000);
+    return;
+  }
+
+  const sec_labels = {
+    infra: 'AI Infrastructure', mem: 'Memory / HBM', inc: 'YieldMax Income',
+    energy: 'Energy', other: 'Other Positions',
+    watch: 'Tech/AI Watchlist', ewatch: 'Energy Watchlist'
+  };
+
+  let lines = [];
+  lines.push(`JENSON PORTFOLIO — ${new Date(snap.updated).toLocaleString()}`);
+  lines.push(`FX: ${snap.fx.toFixed(4)}`);
+  lines.push(`Market Value: $${snap.summary.mv.toLocaleString()} CAD`);
+  lines.push(`Total G/L: ${snap.summary.gl>=0?'+':''}$${snap.summary.gl.toLocaleString()} (${snap.summary.glPct>=0?'+':''}${snap.summary.glPct}%)`);
+  lines.push(`Day Change: ${snap.summary.dayChange>=0?'+':''}$${snap.summary.dayChange.toLocaleString()}`);
+  lines.push('');
+
+  const bySection = {};
+  for (const p of snap.positions) {
+    if (!bySection[p.section]) bySection[p.section] = [];
+    bySection[p.section].push(p);
+  }
+
+  for (const [sec, label] of Object.entries(sec_labels)) {
+    if (!bySection[sec]) continue;
+    lines.push(`--- ${label} ---`);
+    for (const p of bySection[sec]) {
+      lines.push(`${p.ticker} (${p.name}): ${p.shares.toLocaleString()}sh @ $${p.price} (${p.pct>=0?'+':''}${p.pct}%) | MV $${p.mv.toLocaleString()} | book $${p.book.toLocaleString()} | G/L ${p.gl>=0?'+':''}$${p.gl.toLocaleString()} (${p.glPct>=0?'+':''}${p.glPct}%)`);
+    }
+    lines.push('');
+  }
+
+  const text = lines.join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy for Claude', 2000);
+  }).catch(() => {
+    btn.textContent = '❌ Copy failed';
+    setTimeout(() => btn.textContent = '📋 Copy for Claude', 2000);
+  });
 }
 
 fetchAll();
