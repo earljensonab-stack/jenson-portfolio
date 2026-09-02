@@ -254,41 +254,121 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // ── PRICE FETCHING ──────────────────────────────────────────
-const PROXIES = [
+// PRIMARY: Read from prices.json (updated by GitHub Actions every 5 min)
+// FALLBACK: Try CORS proxies directly
+// This approach eliminates CORS issues entirely for the primary path
+
+let cachedPrices = null;
+let cacheTimestamp = 0;
+
+async function loadPricesJson() {
+  // Cache for 4 minutes to avoid hitting GitHub on every render
+  if (cachedPrices && (Date.now() - cacheTimestamp) < 240000) {
+    return cachedPrices;
+  }
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetch(`./prices.json?_=${Date.now()}`, {
+      signal: ctrl.signal, cache: 'no-store'
+    });
+    clearTimeout(tid);
+    if (!r.ok) throw new Error(`prices.json HTTP ${r.status}`);
+    const data = await r.json();
+    const ageSeconds = Math.round((Date.now()/1000) - (data.updated || 0));
+    lg(`✅ prices.json loaded (${Object.keys(data.prices||{}).length} tickers, ${ageSeconds}s old)`);
+    cachedPrices = data.prices || {};
+    cacheTimestamp = Date.now();
+    return cachedPrices;
+  } catch(e) {
+    lg(`⚠️ prices.json failed: ${e.message} — trying live proxy`);
+    return null;
+  }
+}
+
+function sparkMetaToQuote(meta) {
+  if (!meta?.regularMarketPrice) return null;
+  const p = meta.regularMarketPrice;
+  const prev = meta.previousClose || meta.chartPreviousClose || p;
+  const marketState = meta.marketState || 'CLOSED';
+  const change = (marketState === 'CLOSED' && Math.abs(p - prev) < 0.001) ? 0 : p - prev;
+  const pct = prev > 0 ? (change / prev) * 100 : 0;
+  return { price: p, prev, change, pct };
+}
+
+// CORS proxy fallbacks — tried in order when prices.json unavailable
+const PROXY_FNS = [
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
-  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/get?url=${encodeURIComponent(u.replace('query1','query2'))}`,
-  u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
 ];
 
-async function getQ(ticker) {
+async function getQLive(ticker) {
   const cacheBust = Date.now();
-  const base = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d&_=${cacheBust}`;
-  for (let i = 0; i < PROXIES.length; i++) {
+  const base = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${encodeURIComponent(ticker)}&range=1d&interval=5m&_=${cacheBust}`;
+  for (let i = 0; i < PROXY_FNS.length; i++) {
     try {
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), 9000);
-      const r = await fetch(PROXIES[i](base), {
-        signal: ctrl.signal, cache: 'no-store',
-        headers: {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
-      });
+      const r = await fetch(PROXY_FNS[i](base), { signal: ctrl.signal, cache: 'no-store' });
       clearTimeout(tid);
       if (!r.ok) continue;
       const txt = await r.text();
-      let parsed;
-      try { const o = JSON.parse(txt); parsed = o.contents ? JSON.parse(o.contents) : o; } catch { continue; }
-      const meta = parsed?.chart?.result?.[0]?.meta;
-      if (!meta?.regularMarketPrice) continue;
-      const p = meta.regularMarketPrice;
-      const prev = meta.regularMarketPreviousClose || meta.chartPreviousClose || p;
-      const marketState = meta.marketState || 'CLOSED';
-      const change = (marketState === 'CLOSED' && p === prev) ? 0 : p - prev;
-      const pct = prev > 0 ? (change / prev) * 100 : 0;
-      lg(`✅ ${ticker} $${p} @ ${new Date().toLocaleTimeString()}`);
-      return { price: p, prev, change, pct };
+      let inner;
+      try { const o = JSON.parse(txt); inner = o.contents ? JSON.parse(o.contents) : o; } catch { continue; }
+      const meta = inner?.spark?.result?.[0]?.response?.[0]?.meta;
+      const q = sparkMetaToQuote(meta);
+      if (!q) continue;
+      lg(`✅ ${ticker} $${q.price} (proxy${i+1})`);
+      return q;
     } catch(e) { lg(`❌ ${ticker} proxy${i+1}: ${e.message}`); }
   }
   return null;
+}
+
+async function fetchBatchQuotes(tickers) {
+  // Try prices.json first (GitHub Actions updated, no CORS)
+  const jsonPrices = await loadPricesJson();
+  if (jsonPrices) {
+    const map = {};
+    for (const t of tickers) {
+      if (jsonPrices[t]) map[t] = jsonPrices[t];
+    }
+    if (Object.keys(map).length > 0) return map;
+  }
+  // Fall back to live proxy fetch (batch)
+  const symbols = tickers.join(',');
+  const cacheBust = Date.now();
+  const base = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${encodeURIComponent(symbols)}&range=1d&interval=5m&_=${cacheBust}`;
+  for (let i = 0; i < PROXY_FNS.length; i++) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 12000);
+      const r = await fetch(PROXY_FNS[i](base), { signal: ctrl.signal, cache: 'no-store' });
+      clearTimeout(tid);
+      if (!r.ok) continue;
+      const txt = await r.text();
+      let inner;
+      try { const o = JSON.parse(txt); inner = o.contents ? JSON.parse(o.contents) : o; } catch { continue; }
+      const results = inner?.spark?.result || [];
+      if (!results.length) continue;
+      const map = {};
+      for (const item of results) {
+        const q = sparkMetaToQuote(item?.response?.[0]?.meta);
+        if (q) { map[item.symbol] = q; lg(`✅ ${item.symbol} $${q.price}`); }
+      }
+      return map;
+    } catch(e) { lg(`❌ batch proxy${i+1}: ${e.message}`); }
+  }
+  return {};
+}
+
+async function getQ(ticker) {
+  // Try prices.json first
+  const jsonPrices = await loadPricesJson();
+  if (jsonPrices?.[ticker]) return jsonPrices[ticker];
+  // Fall back to live fetch
+  return getQLive(ticker);
 }
 
 function calcMV(pos, q) {
@@ -336,7 +416,16 @@ async function fetchAll() {
   const allPos = Object.values(SECTIONS).flat().filter(p=>p.t!=='');
   const tickers = [...new Set(allPos.map(p => p.type==='MU_CDR'?'MU':p.type==='NVDA_CDR'?'NVDA':p.t))];
   const quoteMap = {};
-  await Promise.all(tickers.map(async t => { quoteMap[t] = (await getQ(t)) ?? false; }));
+  // Batch fetch all tickers (from prices.json or proxy fallback)
+  const batchResults = await fetchBatchQuotes(tickers);
+  // Fill quoteMap — fall back to individual live fetch for any missed tickers
+  await Promise.all(tickers.map(async t => {
+    if (batchResults[t]) {
+      quoteMap[t] = batchResults[t];
+    } else {
+      quoteMap[t] = (await getQLive(t)) ?? false;
+    }
+  }));
   let tMV=0, tBook=0, tDay=0;
   for (const [sec,positions] of Object.entries(SECTIONS)) {
     const isWatch = WATCH_SECTIONS.has(sec);
