@@ -2,7 +2,7 @@ name: Fetch Stock Prices
 
 on:
   schedule:
-    - cron: '*/5 13-21 * * 1-5'
+    - cron: '*/10 13-21 * * 1-5'
     - cron: '0 14 * * 0,6'
   workflow_dispatch:
 
