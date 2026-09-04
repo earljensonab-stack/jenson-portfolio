@@ -1,60 +1,67 @@
 {
-  "updated": 1788551765,
+  "updated": 1788560294,
   "prices": {
-    "CLS.TO": {
-      "price": 432.69,
-      "prev": 427.53,
-      "change": 5.16,
-      "pct": 1.2069,
-      "marketState": "CLOSED"
-    },
-    "DELL": {
-      "price": 524.643,
-      "prev": 516.39,
-      "change": 8.253,
-      "pct": 1.5982,
-      "marketState": "CLOSED"
-    },
-    "APH": {
-      "price": 82.95,
-      "prev": 82.07,
-      "change": 0.88,
-      "pct": 1.0723,
-      "marketState": "CLOSED"
-    },
-    "LRCX": {
-      "price": 307.49,
-      "prev": 292.66,
-      "change": 14.83,
-      "pct": 5.0673,
-      "marketState": "CLOSED"
-    },
-    "VRT": {
-      "price": 280.36,
-      "prev": 268.83,
-      "change": 11.53,
-      "pct": 4.289,
-      "marketState": "CLOSED"
-    },
-    "MU": {
-      "price": 1013.99,
-      "prev": 958.16,
-      "change": 55.83,
-      "pct": 5.8268,
-      "marketState": "CLOSED"
-    },
     "STRL": {
-      "price": 487.895,
+      "price": 486.49,
       "prev": 460.03,
-      "change": 27.865,
-      "pct": 6.0572,
+      "change": 26.46,
+      "pct": 5.7518,
       "marketState": "CLOSED"
     },
     "COHR": {
-      "price": 281.99,
+      "price": 281.86,
       "prev": 264.41,
-      "change": 17.58,
-      "pct": 6.6488,
+      "change": 17.45,
+      "pct": 6.5996,
+      "marketState": "CLOSED"
+    },
+    "CLS.TO": {
+      "price": 432.45,
+      "prev": 427.53,
+      "change": 4.92,
+      "pct": 1.1508,
+      "marketState": "CLOSED"
+    },
+    "MU": {
+      "price": 1016.59,
+      "prev": 958.16,
+      "change": 58.43,
+      "pct": 6.0981,
+      "marketState": "CLOSED"
+    },
+    "LRCX": {
+      "price": 307.65,
+      "prev": 292.66,
+      "change": 14.99,
+      "pct": 5.122,
+      "marketState": "CLOSED"
+    },
+    "DELL": {
+      "price": 524.14,
+      "prev": 516.39,
+      "change": 7.75,
+      "pct": 1.5008,
+      "marketState": "CLOSED"
+    },
+    "VRT": {
+      "price": 280.53,
+      "prev": 268.83,
+      "change": 11.7,
+      "pct": 4.3522,
+      "marketState": "CLOSED"
+    },
+    "APH": {
+      "price": 82.78,
+      "prev": 82.07,
+      "change": 0.71,
+      "pct": 0.8651,
+      "marketState": "CLOSED"
+    },
+    "FBY": {
+      "price": 8.635,
+      "prev": 8.64,
+      "change": -0.005,
+      "pct": -0.0579,
       "marketState": "CLOSED"
     },
     "PEI.V": {
@@ -64,34 +71,6 @@
       "pct": 0.0,
       "marketState": "CLOSED"
     },
-    "V": {
-      "price": 374.055,
-      "prev": 378.75,
-      "change": -4.695,
-      "pct": -1.2396,
-      "marketState": "CLOSED"
-    },
-    "FBY": {
-      "price": 8.66,
-      "prev": 8.64,
-      "change": 0.02,
-      "pct": 0.2315,
-      "marketState": "CLOSED"
-    },
-    "NVDY": {
-      "price": 13.005,
-      "prev": 12.92,
-      "change": 0.085,
-      "pct": 0.6579,
-      "marketState": "CLOSED"
-    },
-    "NFLY": {
-      "price": 7.65,
-      "prev": 7.9499,
-      "change": -0.2999,
-      "pct": -3.7724,
-      "marketState": "CLOSED"
-    },
     "PLAN.V": {
       "price": 0.35,
       "prev": 0.345,
@@ -99,18 +78,39 @@
       "pct": 1.4493,
       "marketState": "CLOSED"
     },
+    "NFLY": {
+      "price": 7.64,
+      "prev": 7.9499,
+      "change": -0.3099,
+      "pct": -3.8982,
+      "marketState": "CLOSED"
+    },
+    "V": {
+      "price": 375.07,
+      "prev": 378.75,
+      "change": -3.68,
+      "pct": -0.9716,
+      "marketState": "CLOSED"
+    },
     "DRAM": {
-      "price": 59.56,
+      "price": 59.69,
       "prev": 55.99,
-      "change": 3.57,
-      "pct": 6.3761,
+      "change": 3.7,
+      "pct": 6.6083,
+      "marketState": "CLOSED"
+    },
+    "NVDY": {
+      "price": 12.98,
+      "prev": 12.92,
+      "change": 0.06,
+      "pct": 0.4644,
       "marketState": "CLOSED"
     },
     "USDCAD=X": {
-      "price": 1.3827,
+      "price": 1.3837,
       "prev": 1.3793,
-      "change": 0.0034,
-      "pct": 0.2465,
+      "change": 0.0044,
+      "pct": 0.319,
       "marketState": "CLOSED"
     }
   }
