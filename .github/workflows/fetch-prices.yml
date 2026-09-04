@@ -2,19 +2,19 @@ name: Fetch Stock Prices
 
 on:
   schedule:
-    # Run every 5 minutes during market hours (Mon-Fri, 13:30-21:00 UTC = 9:30 AM - 5 PM ET)
     - cron: '*/5 13-21 * * 1-5'
-    # Also run once on weekends to get latest close prices
     - cron: '0 14 * * 0,6'
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   fetch-prices:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Fetch prices from Yahoo Finance
         run: |
@@ -30,7 +30,6 @@ jobs:
             "V", "USDCAD=X"
           ]
 
-          # Fetch in batches of 8 to avoid URL length limits
           def fetch_batch(tickers):
             symbols = ",".join(tickers)
             url = f"https://query1.finance.yahoo.com/v7/finance/spark?symbols={urllib.parse.quote(symbols)}&range=1d&interval=5m"
@@ -68,7 +67,7 @@ jobs:
                 }
                 print(f"  {sym}: ${price}")
             if i + batch_size < len(TICKERS):
-              time.sleep(1)  # Be polite
+              time.sleep(1)
 
           output = {
             "updated": int(time.time()),
@@ -81,10 +80,15 @@ jobs:
           print(f"\nWrote {len(prices)} prices to prices.json")
           PYTHON
 
-      - name: Commit prices.json
+      - name: Commit and push prices.json
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add prices.json
-          git diff --staged --quiet || git commit -m "Update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git pull --rebase origin main
+            git push
+          fi
