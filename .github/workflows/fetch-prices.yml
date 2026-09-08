@@ -6,78 +6,80 @@ on:
     - cron: '0 14 * * 0,6'
   workflow_dispatch:
 
+# Prevents two runs from pushing at the same time (the cause of the
+# "! [rejected] main -> main (fetch first)" failure)
+concurrency:
+  group: fetch-prices
+  cancel-in-progress: false
+
 jobs:
   fetch-prices:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
+          fetch-depth: 0
 
       - name: Fetch prices from Yahoo Finance
         run: |
           python3 << 'PYTHON'
-          import urllib.request
-          import json
-          import time
-          import urllib.parse
+          import urllib.request, json, time, urllib.parse
 
           TICKERS = [
-            "STRL", "CLS.TO", "VRT", "DELL", "LRCX", "COHR", "APH",
+            "STRL", "CLS.TO", "VRT", "DELL", "LRCX", "COHR",
             "MU", "DRAM", "NVDY", "FBY", "NFLY", "PEI.V", "PLAN.V",
             "V", "USDCAD=X"
           ]
 
           def fetch_batch(tickers):
             symbols = ",".join(tickers)
-            url = f"https://query1.finance.yahoo.com/v7/finance/spark?symbols={urllib.parse.quote(symbols)}&range=1d&interval=5m"
+            url = ("https://query1.finance.yahoo.com/v7/finance/spark"
+                   f"?symbols={urllib.parse.quote(symbols)}&range=1d&interval=5m")
             req = urllib.request.Request(url, headers={
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
               "Referer": "https://finance.yahoo.com"
             })
-            try:
-              with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read())
-              return data.get("spark", {}).get("result", [])
-            except Exception as e:
-              print(f"Batch error: {e}")
-              return []
+            for attempt in range(3):
+              try:
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                  return json.loads(resp.read()).get("spark", {}).get("result", [])
+              except Exception as e:
+                print(f"  attempt {attempt+1} failed: {e}")
+                time.sleep(2)
+            return []
 
           prices = {}
-          batch_size = 8
-          for i in range(0, len(TICKERS), batch_size):
-            batch = TICKERS[i:i+batch_size]
-            results = fetch_batch(batch)
-            for item in results:
+          for i in range(0, len(TICKERS), 8):
+            batch = TICKERS[i:i+8]
+            for item in fetch_batch(batch):
               sym = item["symbol"]
               meta = item.get("response", [{}])[0].get("meta", {})
               price = meta.get("regularMarketPrice")
               prev = meta.get("previousClose") or meta.get("chartPreviousClose") or price
               if price:
                 change = price - (prev or price)
-                pct = (change / prev * 100) if prev else 0
                 prices[sym] = {
                   "price": price,
                   "prev": prev,
                   "change": round(change, 4),
-                  "pct": round(pct, 4),
+                  "pct": round((change / prev * 100) if prev else 0, 4),
                   "marketState": meta.get("marketState", "CLOSED")
                 }
                 print(f"  {sym}: ${price}")
-            if i + batch_size < len(TICKERS):
+            if i + 8 < len(TICKERS):
               time.sleep(1)
 
-          output = {
-            "updated": int(time.time()),
-            "prices": prices
-          }
+          if not prices:
+            raise SystemExit("No prices fetched - aborting without overwriting prices.json")
 
           with open("prices.json", "w") as f:
-            json.dump(output, f, indent=2)
-
-          print(f"\nWrote {len(prices)} prices to prices.json")
+            json.dump({"updated": int(time.time()), "prices": prices}, f, indent=2)
+          print(f"\nWrote {len(prices)} prices")
           PYTHON
 
       - name: Commit and push prices.json
@@ -86,10 +88,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add prices.json
           if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
-            git pull --rebase origin main
-            git push --force-with-lease origin main || 
-            git push --force origin main
+            echo "No price changes to commit"
+            exit 0
           fi
+          git commit -m "chore: update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
+          # Retry loop: rebase onto whatever landed remotely, then push
+          for attempt in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin main && git push origin main; then
+              echo "Pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "Push attempt $attempt failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "All push attempts failed"
+          exit 1
