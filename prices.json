@@ -1,18 +1,53 @@
 {
-  "updated": 1793126225,
+  "updated": 1793140656,
   "prices": {
+    "STRL": {
+      "price": 367.5,
+      "prev": 360.72,
+      "change": 6.78,
+      "pct": 1.8796,
+      "marketState": "CLOSED"
+    },
+    "DELL": {
+      "price": 501.96,
+      "prev": 467.09,
+      "change": 34.87,
+      "pct": 7.4654,
+      "marketState": "CLOSED"
+    },
     "LRCX": {
-      "price": 240.52,
+      "price": 240.85,
       "prev": 237.5,
-      "change": 3.02,
-      "pct": 1.2716,
+      "change": 3.35,
+      "pct": 1.4105,
+      "marketState": "CLOSED"
+    },
+    "CLS.TO": {
+      "price": 388.33,
+      "prev": 346.97,
+      "change": 41.36,
+      "pct": 11.9203,
+      "marketState": "CLOSED"
+    },
+    "VRT": {
+      "price": 208.56,
+      "prev": 199.78,
+      "change": 8.78,
+      "pct": 4.3948,
       "marketState": "CLOSED"
     },
     "MU": {
-      "price": 932.535,
+      "price": 928.76,
       "prev": 903.7,
-      "change": 28.835,
-      "pct": 3.1908,
+      "change": 25.06,
+      "pct": 2.773,
+      "marketState": "CLOSED"
+    },
+    "COHR": {
+      "price": 235.79,
+      "prev": 221.5,
+      "change": 14.29,
+      "pct": 6.4515,
       "marketState": "CLOSED"
     },
     "DRAM": {
@@ -22,46 +57,18 @@
       "pct": 4.5313,
       "marketState": "CLOSED"
     },
-    "STRL": {
-      "price": 368.904,
-      "prev": 360.72,
-      "change": 8.184,
-      "pct": 2.2688,
-      "marketState": "CLOSED"
-    },
-    "CLS.TO": {
-      "price": 390.46,
-      "prev": 346.97,
-      "change": 43.49,
-      "pct": 12.5342,
-      "marketState": "CLOSED"
-    },
-    "VRT": {
-      "price": 210.34,
-      "prev": 199.78,
-      "change": 10.56,
-      "pct": 5.2858,
-      "marketState": "CLOSED"
-    },
-    "DELL": {
-      "price": 502.819,
-      "prev": 467.09,
-      "change": 35.729,
-      "pct": 7.6493,
-      "marketState": "CLOSED"
-    },
-    "COHR": {
-      "price": 234.94,
-      "prev": 221.5,
-      "change": 13.44,
-      "pct": 6.0677,
+    "FBY": {
+      "price": 8.02,
+      "prev": 8.16,
+      "change": -0.14,
+      "pct": -1.7157,
       "marketState": "CLOSED"
     },
     "NVDY": {
-      "price": 11.842,
+      "price": 11.87,
       "prev": 11.79,
-      "change": 0.052,
-      "pct": 0.4411,
+      "change": 0.08,
+      "pct": 0.6785,
       "marketState": "CLOSED"
     },
     "PLAN.V": {
@@ -71,25 +78,18 @@
       "pct": 0.0,
       "marketState": "CLOSED"
     },
-    "NFLY": {
-      "price": 6.06,
-      "prev": 6.12,
-      "change": -0.06,
-      "pct": -0.9804,
-      "marketState": "CLOSED"
-    },
-    "FBY": {
-      "price": 8.045,
-      "prev": 8.16,
-      "change": -0.115,
-      "pct": -1.4093,
-      "marketState": "CLOSED"
-    },
     "V": {
-      "price": 398.08,
+      "price": 401.86,
       "prev": 404.16,
-      "change": -6.08,
-      "pct": -1.5044,
+      "change": -2.3,
+      "pct": -0.5691,
+      "marketState": "CLOSED"
+    },
+    "NFLY": {
+      "price": 6.1,
+      "prev": 6.12,
+      "change": -0.02,
+      "pct": -0.3268,
       "marketState": "CLOSED"
     },
     "PEI.V": {
@@ -100,10 +100,10 @@
       "marketState": "CLOSED"
     },
     "USDCAD=X": {
-      "price": 1.405,
+      "price": 1.4047,
       "prev": 1.4012,
-      "change": 0.0038,
-      "pct": 0.2712,
+      "change": 0.0035,
+      "pct": 0.2498,
       "marketState": "CLOSED"
     }
   }
