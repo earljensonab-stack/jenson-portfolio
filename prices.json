@@ -1,109 +1,109 @@
 {
-  "updated": 1795561056,
+  "updated": 1795645007,
   "prices": {
-    "STRL": {
-      "price": 256.15,
-      "prev": 278.77,
-      "change": -22.62,
-      "pct": -8.1142,
-      "marketState": "CLOSED"
-    },
-    "VRT": {
-      "price": 173.82,
-      "prev": 186.25,
-      "change": -12.43,
-      "pct": -6.6738,
-      "marketState": "CLOSED"
-    },
-    "DRAM": {
-      "price": 35.92,
-      "prev": 39.57,
-      "change": -3.65,
-      "pct": -9.2242,
-      "marketState": "CLOSED"
-    },
-    "CLS.TO": {
-      "price": 280.8,
-      "prev": 306.54,
-      "change": -25.74,
-      "pct": -8.3969,
-      "marketState": "CLOSED"
-    },
-    "LRCX": {
-      "price": 196.16,
-      "prev": 209.76,
-      "change": -13.6,
-      "pct": -6.4836,
-      "marketState": "CLOSED"
-    },
-    "DELL": {
-      "price": 295.28,
-      "prev": 334.91,
-      "change": -39.63,
-      "pct": -11.833,
-      "marketState": "CLOSED"
-    },
     "MU": {
-      "price": 629.79,
-      "prev": 707.7,
-      "change": -77.91,
-      "pct": -11.0089,
+      "price": 601.25,
+      "prev": 630.0729,
+      "change": -28.8229,
+      "pct": -4.5745,
+      "marketState": "CLOSED"
+    },
+    "STRL": {
+      "price": 260.7,
+      "prev": 256.15,
+      "change": 4.55,
+      "pct": 1.7763,
       "marketState": "CLOSED"
     },
     "COHR": {
-      "price": 196.24,
-      "prev": 215.81,
-      "change": -19.57,
-      "pct": -9.0682,
+      "price": 196.19,
+      "prev": 196.24,
+      "change": -0.05,
+      "pct": -0.0255,
+      "marketState": "CLOSED"
+    },
+    "VRT": {
+      "price": 173.37,
+      "prev": 173.82,
+      "change": -0.45,
+      "pct": -0.2589,
+      "marketState": "CLOSED"
+    },
+    "LRCX": {
+      "price": 185.01,
+      "prev": 196.16,
+      "change": -11.15,
+      "pct": -5.6841,
+      "marketState": "CLOSED"
+    },
+    "CLS.TO": {
+      "price": 272.92,
+      "prev": 280.8,
+      "change": -7.88,
+      "pct": -2.8063,
+      "marketState": "CLOSED"
+    },
+    "DRAM": {
+      "price": 34.83,
+      "prev": 35.92,
+      "change": -1.09,
+      "pct": -3.0345,
+      "marketState": "CLOSED"
+    },
+    "DELL": {
+      "price": 297.06,
+      "prev": 295.28,
+      "change": 1.78,
+      "pct": 0.6028,
       "marketState": "CLOSED"
     },
     "NFLY": {
-      "price": 5.55,
-      "prev": 5.5032,
-      "change": 0.0468,
-      "pct": 0.8504,
-      "marketState": "CLOSED"
-    },
-    "PLAN.V": {
-      "price": 0.315,
-      "prev": 0.3,
-      "change": 0.015,
-      "pct": 5.0,
-      "marketState": "CLOSED"
-    },
-    "NVDY": {
-      "price": 8.42,
-      "prev": 8.86,
-      "change": -0.44,
-      "pct": -4.9661,
+      "price": 5.6,
+      "prev": 5.55,
+      "change": 0.05,
+      "pct": 0.9009,
       "marketState": "CLOSED"
     },
     "FBY": {
-      "price": 7.54,
-      "prev": 7.59,
-      "change": -0.05,
-      "pct": -0.6588,
+      "price": 7.81,
+      "prev": 7.54,
+      "change": 0.27,
+      "pct": 3.5809,
+      "marketState": "CLOSED"
+    },
+    "PLAN.V": {
+      "price": 0.31,
+      "prev": 0.315,
+      "change": -0.005,
+      "pct": -1.5873,
       "marketState": "CLOSED"
     },
     "PEI.V": {
-      "price": 0.01,
-      "prev": 0.015,
-      "change": -0.005,
-      "pct": -33.3333,
+      "price": 0.015,
+      "prev": 0.01,
+      "change": 0.005,
+      "pct": 50.0,
+      "marketState": "CLOSED"
+    },
+    "NVDY": {
+      "price": 8.13,
+      "prev": 8.42,
+      "change": -0.29,
+      "pct": -3.4442,
       "marketState": "CLOSED"
     },
     "V": {
-      "price": 416.78,
-      "prev": 409.4,
-      "change": 7.38,
-      "pct": 1.8026,
+      "price": 424.39,
+      "prev": 416.78,
+      "change": 7.61,
+      "pct": 1.8259,
       "marketState": "CLOSED"
     },
     "USDCAD=X": {
-      "price": 1.4264,
-      "prev": 1.4364,
-      "change": -0.01,
-      "pct": -0.6962,
+      "price": 1.4211,
+      "prev": 1.4264,
+      "change": -0.0053,
+      "pct": -0.3716,
       "marketState": "CLOSED"
     }
   }
